@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<link rel="stylesheet" href="/sp/public/weui/css/weui.css">
+<link rel="stylesheet" href="/sp/public/weui/css/weui2.css"/>
+<link rel="stylesheet" href="/sp/public/weui/css/weui3.css"/>
+<script src="/sp/public/widgets/layer.m/layer.m.js"></script>
+<script src="/sp/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/sp/public/widgets/dropload/dropload.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/sp/public/js/zepto.min.js"></script> 
+<script src="https://gw.alipayobjects.com/os/antv/assets/g2/3.0.5-beta.5/g2.min.js"></script>
+<script src="https://gw.alipayobjects.com/os/antv/assets/data-set/0.8.6/data-set.min.js"></script>
+<script>G2.Global.setTheme('dark');</script>
+<style type="text/css">
+.backColor{
+background-color:rgba(31,31,31,1)
+}
+.font{
+margin: 0;
+padding: 0;
+line-height: 1.5em;
+font-family: "Times New Roman", Times, serif;
+font-size: 14px;
+color: #1890FF;
+}
+</style>
+<script type="text/javascript">
+angular.module('app', ['ngTouch'])
+	.value('appValue', {
+	    index: 1,
+	    size: 10
+	})
+	.factory('agentChat',['$http','appValue',function($http, appValue){
+			return {
+				getData:function(number,size){
+					return $http({
+						method:'JSONP',
+						url:'http://47.98.200.5:8080/watersaving/api/flush/statDay?callback=queryChat_Day'
+					});
+				}
+			}
+	 }])
+	 .factory('agentChat_change',['$http','appValue',function($http, appValue){
+			return {
+				getData:function(number,size){
+					return $http({
+						method:'JSONP',
+						url:'http://47.98.200.5:8080/watersaving/api/flush/statMonth?callback=queryChat_Month'
+					});
+				}
+			}
+	 }])
+	  .factory('agentChat_count',['$http','appValue',function($http, appValue){
+			return {
+				getData:function(number,size){
+					return $http({
+						method:'JSONP',
+						url:'http://47.98.200.5:8080/watersaving/api/flush/statTimesDay?callback=queryChat_Count'
+					});
+				}
+			}
+	 }])
+	 .factory('agentChat_desc',['$http','appValue',function($http, appValue){
+			return {
+				getData:function(number,size){
+					return $http({
+						method:'JSONP',
+						url:'http://47.98.200.5:8080/watersaving/api/flush/statisticsflush?callback=queryChat_Desc'
+					});
+				}
+			}
+	 }])
+	 .controller('MainController',['$scope','appValue','agentChat','agentChat_change','agentChat_count','agentChat_desc','$timeout',function($scope, appValue, agentChat,agentChat_change,agentChat_count,agentChat_desc,$timeout){
+		 var chart = new G2.Chart({container: 'mountNode',height:300,width:350 });
+		 $scope.count = 0;
+		 //得到最大数值
+		 function queryMaxValue(data){
+			 var value = 0;
+			 if(data.length > 0){
+				 for(var i = 0;i<data.length;i++){
+					 if(value < data[i].flushValue){
+						 value = data[i].flushValue;
+					 }
+				 }
+			 }
+			 return value;
+		 }
+		 function writeLog(methodName,desc,code){
+			 var parmData = {methodName:methodName,errorDesc:desc,errorCode:code};
+			 $.ajax({
+				 type:'post',
+				 url:'/sp/mobile/Execute/saveScLog',
+				 data:parmData,
+				 success:function(data){
+					 
+				 }
+			 });
+		 }
+		 //获取当前时间
+		 function getNowFormatDate() {
+		        var date = new Date();
+		        var seperator1 = "-";
+		        var year = date.getFullYear();
+		        var month = date.getMonth() + 1;
+		        var strDate = date.getDate();
+		        if (month >= 1 && month <= 9) {
+		            month = "0" + month;
+		        }
+		        if (strDate >= 0 && strDate <= 9) {
+		            strDate = "0" + strDate;
+		        }
+		        var currentdate =  month + seperator1 + strDate;
+		        return currentdate;
+		    }
+		 /*获取上个月*/  
+		 function getPreMonth(i) { 
+			 var dd = new Date();
+			 dd.setMonth(dd.getMonth() -parseInt(i));
+			 var y = dd.getFullYear();   
+			 var m = (dd.getMonth()+1)<10?"0"+(dd.getMonth()+1):(dd.getMonth()+1);//获取当前月份的日期，不足10补0    
+			 var d = dd.getDate()<10?"0"+dd.getDate():dd.getDate();//获取当前几号，不足10补0    
+			 return m+"";  
+		 }  
+		 //计算日期
+		 function GetDateStr(AddDayCount) {  
+			   var dd = new Date();    
+			   dd.setDate(dd.getDate()-AddDayCount);//获取AddDayCount天后的日期    
+			   var y = dd.getFullYear();     
+			   var m = (dd.getMonth()+1)<10?"0"+(dd.getMonth()+1):(dd.getMonth()+1);//获取当前月份的日期，不足10补0    
+			   var d = dd.getDate()<10?"0"+dd.getDate():dd.getDate();//获取当前几号，不足10补0    
+			   return m+ "-" +d;     
+			} 
+		 //作为教研数据是否完整
+		 function repair(data){
+			 var flag = false;
+			 var _temp = null;
+			 var newDate = [];
+			 if(data.length < 7){
+				 for(var i = 0;i<7;i++){
+					 flag = false;
+					 var j = 0;
+					 for(;j<data.length;j++){
+						 if(GetDateStr(i) == data[j].statDate){
+							 _temp = new Object();
+							 _temp.statDate = data[j].statDate;
+							 _temp.flushValue = data[j].flushValue;
+							 flag = true;
+						 }
+					 }
+					 if(flag){
+						 newDate.unshift(_temp);
+					 }
+					 if(!flag){
+						 var person = new Object();
+						 person.statDate = GetDateStr(i);
+						 person.flushValue = 5;
+						 newDate.unshift(person);
+					 }
+				 }
+			 }else{
+				 newDate = data;
+			 }
+			 return newDate;
+		 }
+		 //格式化月份
+		 function formatte_Month(data){
+			 var newDate = [];
+			 var flag = false;
+			 var _temp = null;
+			 if(data.length <7){
+				 for(var i=0;i<7;i++){
+					 flag = false;
+					 for(var j = 0;j<data.length;j++){
+						 if(getPreMonth(i) == data[j].statDate){
+							 _temp = new Object();
+							 _temp.statDate = data[j].statDate;
+							 _temp.flushValue = data[j].flushValue;
+							 flag = true;
+						 }
+					 }
+					 if(flag){
+						 newDate.unshift(_temp);
+					 }
+					 if(!flag){
+						 var person = new Object();
+						 person.statDate = getPreMonth(i);
+						 person.flushValue = 0;
+						 newDate.unshift(person);
+					 }
+				 }
+			 }else{
+				 newDate = data;
+			 }
+			 return newDate;
+		 }
+		 //格式化天
+		 function formatter(data){
+			 for(var i =0;i<data.length;i++){
+				 if(data[i].flushValue < 0){
+					 data[i].flushValue = data[i].flushValue.replace('-','');
+				 }
+				 data[i].statDate = data[i].statDate.toString().substring(5,data[i].statDate.length);
+			 }
+		 }
+		 $scope.agentChat_desc = function(){
+			 agentChat_desc.getData().then(function(responese){
+			 },function(response){
+			 })
+		 }
+		 window.queryChat_Desc = function(data){
+			 if(data[0].maxTime.length ==0){
+				 writeLog('/flush/statisticsflush','最大用水量日期为空','000');
+			 }
+			 if(data[0].maxFlush.length == 0){
+				 writeLog('/flush/statisticsflush','最大用水量为空','000');
+			 }
+			 if(data[0].averageFlush.length == 0){
+				 writeLog('/flush/statisticsflush','平均值为空','000');
+			 }
+			 if(data[0].flushNumber.length == 0){
+				 writeLog('/flush/statisticsflush','冲水次数为空','000');
+			 }
+			 if(data[0].flushTimeSlot.length == 0){
+				 writeLog('/flush/statisticsflush','频繁冲水时间段为空','000');
+			 }
+			 $("#maxDate").html(data[0].maxTime);
+			 $("#flushValue").html(data[0].maxFlush);
+			 $("#avgFlushValue").html(data[0].averageFlush);
+			 $("#flushtimes").html(data[0].flushNumber);
+			 $("#flushTimeSlot").html(data[0].flushTimeSlot);
+			  
+		 }
+		 //冲水量
+		 $scope.agentChat_count =function(){
+			 agentChat_count.getData().then(function(response){
+			 },function(response){});
+		 }
+		 window.queryChat_Count = function(data){
+			 if(data.length > 0){
+				  var value = queryMaxValue(data)
+				  formatter(data);
+				  const { DataView } = DataSet;
+				  const dv = new DataView().source(data);
+				  dv.transform({
+				      type: 'fold',
+				      fields: [ 'flushValue' ], // 展开字段集
+				      key: 'user', // key字段
+				      value: 'score', // value字段
+				    });
+				  const chart = new G2.Chart({
+				    container: 'mountNode_',
+				    forceFit: true,
+				    height:400,
+				    padding: [ 20, 20, 95, 20 ]
+				  });
+				  chart.source(dv, {
+				    score: {
+				      min: 0,
+				      max:value
+				    }
+				  });
+				  chart.coord('polar', {
+				    radius: 0.8
+				  });
+				  chart.axis('statDate', {
+				    line: null,
+				    tickLine: null,
+				    grid: {
+				      lineStyle: {
+				        lineDash: null
+				      },
+				      hideFirstLine: false
+				    }
+				  });
+				  chart.axis('score', {
+				    line: null,
+				    tickLine: null,
+				    grid: {
+				      type: 'polygon',
+				      lineStyle: {
+				        lineDash: null
+				      }
+				    }
+				  });
+				  chart.legend('user', {
+				    marker: 'circle',
+				    offset: 30
+				  });
+				  chart.line().position('statDate*score').color('user').size(2);
+				  chart.point().position('statDate*score').color('user').shape('circle').size(4).style({
+				    stroke: '#fff',
+				    lineWidth: 1,
+				    fillOpacity: 1
+				  });
+				  chart.area().position('statDate*score').color('user');
+				  chart.render();
+				  chart.on('point:click', ev => {
+					  if("" !=ev.data._origin.item){
+						  window.location.href="../../../sp/mobile/Skip/toRushWater?time="+ev.data._origin.statDate;
+					  }
+				  });
+			 }else{
+				 writeLog('/flush/statTimesDay','暂无数据','000');
+			 }
+		 }
+		 $scope.chatChange = function(){
+			 if($scope.count == 0){
+					$("#title").html('用水统计（月）');
+					$scope.initChat_Month()
+					$scope.count =1;
+				}else{
+					$("#title").html('用水统计（日）');
+					$scope.initChat_Day();
+					$scope.count =0;
+				}
+		 }
+		 
+		 //月
+		 $scope.initChat_Month = function(me){
+			 agentChat_change.getData().then(function(response){
+			 },function(response){
+				 
+			 });
+		 }
+		 //月callback
+		 window.queryChat_Month = function(data){
+			 if(data.length > 0){
+				 formatter(data);
+				 data = formatte_Month(data);
+			    chart.clear();
+				var data_2 = data;
+				  chart.source(data_2);
+				  chart.scale('flushValue', {
+				    min: 0
+				  });
+				  chart.scale('statDate', {
+				    range: [ 0 , 1 ]
+				  });
+				  chart.tooltip({
+				    crosshairs: {
+				      type: 'line'
+				    }
+				  });
+				  chart.area().position('statDate*flushValue');
+				  chart.line().position('statDate*flushValue').size(2);
+				  chart.changeData(data_2);
+			 }else{
+				 writeLog('/flush/statMonth','暂无数据','000');
+			 }
+		 }
+		 //天
+		 $scope.initChat_Day = function(me){
+			 agentChat.getData().then(function(response){
+			 },function(response){
+			 });
+		 }
+		 $scope.initChat_Day();
+		 $scope.agentChat_count();
+		 $scope.agentChat_desc();
+		 //天 callback
+		 window.queryChat_Day = function(data){
+			 chart.clear();
+			 if(data.length > 0){
+				 formatter(data);
+				 var data =  repair(data);
+				 chart.source(data);
+				  chart.scale({
+					    value: {
+					      min: 0
+					    },
+					    year: {
+					      range: [ 0 , 1 ]
+					    }
+					  });
+				  chart.tooltip({
+				    crosshairs: {
+				      type: 'line'
+				    }
+				  });
+				  chart.area().position('statDate*flushValue');
+				  chart.line().position('statDate*flushValue').size(2);
+				  //chart.render();
+				  chart.changeData(data);
+			 }else{
+				 writeLog('/flush/statDay','暂无数据','000');
+			 }
+		 }
+	 }]);
+</script>
+</head>
+<body ng-cloak ng-controller="MainController"  class="backColor">
+	<div class="page-bd">
+		<div class="weui-flex">
+            <div class="weui-flex-item"><div class="placeholder backColor"  style="color:#898989;">当前状态：<span class='f-red' ng-if="${status} == 1">运行</span><span class='f-red' ng-if="${status} == 2">冲水</span><span class='f-red' ng-if="${status} == 3">异常</span><span class='f-red' ng-if="${status} == 4">离线</span></div></div>
+            <div class="weui-flex-item"><div class="placeholder backColor"  ><span class='f-red' ng-if="${status} == 3">电磁阀故障</span></div></div>
+        </div>
+        <div class="weui-flex"style="margin-top:-20px;">
+        	<div class="weui-flex-item">
+	        	<div class="placeholder backColor"  >
+	        		<img alt="" src="/sp/public/images/rush/9.png" style="width:100%;height:300px;">
+	        	</div>
+        	</div>
+        </div>
+        <div class="weui-flex" style="margin-top:260px;">
+        	<div class="weui-flex-item">
+	        	<div class="placeholder backColor" >
+	        		<table style="width:100%;" border="0">
+	        			<tr>
+	        				<td align="right"><span id="title" style="color:#898989;">用水量统计（日） </span></td>
+	        				<td align="center" style="position:relative;top:80%; transform: translateY(0%);width:25%"><span ><a href="javascript:;" id="change" class="weui_btn weui_btn_mini bg-blue-b" ng-click="chatChange();">切换</a></span></td>
+	        			</tr>
+	        		</table>
+	        		 <div id="mountNode"></div>
+	        	</div>
+        	</div>
+        </div>
+        <div class="weui-flex" style="margin-top:260px;">
+        	<div class="weui-flex-item">
+	        	<div class="placeholder backColor"   >
+	        	    <table style="width:65%;" border="0">
+	        			<tr>
+	        				<td align="right"><p id="title" style="color:#898989;">冲水次数统计</p></td>
+	        			</tr>
+	        		</table>
+	        		 <div id="mountNode_"></div>
+	        	</div>
+        	</div>
+        </div>
+        <div class="weui-flex" style="margin-top:369px;">
+            <div class="weui-flex-item">
+            	<div class="placeholder backColor">
+            		<p class="font">据统计，<font id="maxDate"></font>日用水量最大，为<font id="flushValue"></font>，高于平均水量<font id="avgFlushValue"></font>。该日冲水次数为<font id="flushtimes"></font>次，其中<font id="flushTimeSlot"></font>时段冲水较为频繁。</p>
+            	</div>
+            </div>
+        </div>
+        <div style="height:20px;"></div>
+	</div>
+</body>
+</html>

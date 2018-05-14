@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<link rel="stylesheet" href="/sp/public/css/main.css" />
+<link rel="stylesheet" href="/sp/public/weui/css/weui.css">
+<link rel="stylesheet" href="/sp/public/weui/css/weui2.css"/>
+<link rel="stylesheet" href="/sp/public/weui/css/weui3.css"/>
+<link rel="stylesheet" href="/sp/public/weui/css/weui.min.css">
+<link rel="stylesheet" href="/sp/public/weui/css/jquery-weui.css"/>
+
+<script src="/sp/public/widgets/layer.m/layer.m.js"></script>
+<script src="/sp/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="https://cdn.bootcss.com/ionic/1.3.2/js/ionic.bundle.min.js"></script>
+<script src="/sp/public/widgets/dropload/dropload.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/sp/public/js/zepto.min.js"></script> 
+<script src="/sp/public/rush/js/rush.js"type="text/javascript"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<script type="text/javascript">
+var openId = 'oOgaM1iDiuXcYYTelp_kR_DFhfqc';
+var vnoId = '1';
+var url = window.location.href.split('#')[0];
+var ajaxReturn = $.ajax({url:"/sp/Weixin/getWxSdkInfo", data: {url: url,openId:openId,vnoId:vnoId}});
+ajaxReturn.done(function (data) {
+	var appId = data.appId,
+    signature = data.signature,
+    timestamp = data.timestamp,
+    nonce = data.nonce;
+	 wx.config({
+         debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+         appId: appId, // 必填，公众号的唯一标识
+         timestamp: timestamp, // 必填，生成签名的时间戳
+         nonceStr: nonce, // 必填，生成签名的随机串
+         signature: signature,// 必填，签名，见附录1
+         jsApiList: ['scanQRCode'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+     });
+});
+angular.module('app', ['ngTouch','ionic'])
+		.value('appValue', {
+		    index: 1,
+		    size: 10
+		})
+		.factory('agentRemote',['$http','appValue',function($http, appValue){
+			return {
+				getData:function(number,size){
+					return $http({
+						method:'JSONP',
+						url:'http://47.98.200.5:8080/watersaving/api/toilet/list?callback=querytoliet',
+						params:{
+							pageNumber:number, 
+							pageSize:size,
+							toiletName:''
+						}
+					});
+				}
+			}
+		}])
+		.factory('agentRemoteInfo',['$http','appValue',function($http, appValue){
+			return {
+				getData:function(toiletName){
+					return $http({
+						method:'JSONP',
+						url:'http://47.98.200.5:8080/watersaving/api/toilet/list?callback=tolietInfo',
+						params:{
+							pageNumber:1,
+							pageSize:10,
+							toiletName:toiletName
+						}
+					});
+				}
+			}
+		}])
+		.factory('handle',['$http','appValue',function($http, appValue){
+			return {
+				flushOpen:function(deviceCode){
+					return $http({
+						method:'JSONP',
+						url:'http://47.98.200.5:8080/watersaving/api/toilet/flushOpenCmd?callback=flushToliet',
+						params:{
+							deviceCode:deviceCode
+						}
+					});
+				}
+			}
+		}])
+		.factory('local',['$http','appValue',function($http, appValue){
+			return {
+				query:function(deviceCode){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/querytoilet'
+					});
+				},
+				del:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/delToilet',
+						params:data
+					});
+				},
+				queryById:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/queryToiletById',
+						params:data
+					});
+				},
+				modifyToilet:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/modifyToilet',
+						params:data
+					});
+				}
+			}
+		}])
+		.controller('MainController',['$scope','appValue','agentRemote','agentRemoteInfo','handle','local','$timeout',function($scope, appValue, agentRemote,agentRemoteInfo,handle,local,$timeout){
+		    $scope.lists = [];
+		    function writeLog(methodName,desc,code){
+				 var parmData = {methodName:methodName,errorDesc:desc,errorCode:code};
+				 $.ajax({
+					 type:'post',
+					 url:'/sp/mobile/Execute/saveScLog',
+					 data:parmData,
+					 success:function(data){
+					 }
+				 });
+			 }
+		    //详细信息
+		    $scope.agentRemoteInfo = function(toiletName){
+		    	agentRemoteInfo.getData(toiletName).then(function(response){
+		    		
+		    	},function(response){
+		    	}); 
+		    }
+		    //详细信息callback
+		    window.tolietInfo = function(data){
+		    	if(data.rows.length > 0){
+		    		window.location.href="../../../sp/mobile/Skip/toRushChat?status="+data.rows[0].status;
+		    	}else{
+		    		$.toast('暂无数据', "cancel");
+		    		writeLog('/toilet/list','卫生间详细信息无数据','000')
+		    	}
+		    }
+		    //强冲操作
+		    $scope.flushOpen = function(deviceCode){
+		    	console.log('------------------');
+		    	console.log('设备号：'+deviceCode);
+		    	handle.flushOpen(deviceCode).then(function(response){
+		    	},function(response){
+		    	}); 
+		    }
+		    //强冲callback
+		    window.flushToliet = function(data){
+		    	console.log('---------返回结果');
+		    	console.log(data);
+		    	if(data.code == '0'){
+		    		 $.toast(data.msg);
+		    	}else{
+		    		$.toast(data.msg, "cancel");
+		    		writeLog('/toilet/flushOpenCmd',data.msg,data.code)
+		    	}
+		    }
+		    //拖拽刷新
+		    $scope.nextPage = function(me){
+		    	console.log(++appValue.index);
+		    	console.log(++appValue.size);
+		    	agentRemote.getData(1,++appValue.size).then(function (response) {
+                }, function (response) {
+                	console.log(response);
+                });
+		    }
+		    //初始化
+			$scope.initPage = function (me) {
+				 agentRemote.getData(1,10).then(function (response) {
+                 }, function (response) {
+                 });
+			 }
+		     //初始化callback
+			 window.querytoliet = function(data){
+				 console.log('-------------');
+				 if(data.rows.length > 0){
+					 $scope.lists = data.rows;
+					 $scope.initLocal();
+				 }else{
+					 writeLog('/toilet/list','卫生间列表无数据','000');
+				 }
+				 console.log('-------------')
+			 }
+		     $scope.onHold = function(param){
+		    	 $.actions({
+			          title: "选择操作",
+			          onClose: function() {
+			            console.log("close");
+			          },
+			          actions: [
+			            {
+			              text: "编辑",
+			              className: "color-warning",
+			              onClick: function() {
+			            	  var data = {"id":param}
+			                local.queryById(data).then(function(data){
+			                	console.log(data.data.data.toiletName);
+			                	$.prompt("修改卫生间", data.data.data.toiletName, function(text) {
+			           			 var data = {"toiletName":text,"id":param};
+			           	          local.modifyToilet(data).then(function(data){
+			           	        	$scope.initPage();
+			           	          })
+			           	        }, function() {
+			           	          //取消操作
+			           	        });
+			                })
+			              }
+			            },
+			            {
+			              text: "删除",
+			              className: 'color-danger',
+			              onClick: function() {
+			            	  var data = {"id":param}
+			            	  local.del(data).then(function(data){
+			            		  $scope.initPage();
+			            	  })
+			              }
+			            }
+			          ]
+			        });
+		     }
+		     $scope.initLocal = function(){
+		    	 local.query().then(function(response){
+		    		 for(var i=0;i<response.data.data.data.length;i++){
+		    			 $scope.lists.push(response.data.data.data[i]);
+		    		 }
+		    	 })
+		     }
+		     $scope.scanQRCode = function(){
+		    	  wx.scanQRCode({  
+		                needResult : 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，  
+		                scanType : [ "qrCode", "barCode" ], // 可以指定扫二维码还是一维码，默认二者都有  
+		                success : function(res) {  
+		                }  
+		            });
+		     }
+			 $scope.initPage();
+			$('#scroller').dropload({
+                 domUp: {
+                     domClass: 'dropload-up',
+                     domRefresh: '<div class="dropload-refresh">↓下拉刷新</div>',
+                     domUpdate: '<div class="dropload-update">↑释放更新</div>',
+                     domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                 },
+                 domDown: {
+                     domClass: 'dropload-down',
+                     domRefresh: '<div class="dropload-refresh">↑上拉加载更多</div>',
+                     domUpdate: '<div class="dropload-update">↓释放加载</div>',
+                     domLoad: '<div class="dropload-load"><span class="loading"></span>加载中...</div>'
+                 },
+                 scrollArea: window,
+                 loadUpFn: function (me) {
+                     console.log('down');
+                     $scope.nextPage();
+                     me.resetload();
+                 },
+                 loadDownFn: function (me) {
+                     console.log('up');
+                     me.resetload();
+                 }
+             });
+		}])
+</script>
+</head>
+<body ng-cloak ng-controller="MainController"   style="background-color: #f8f8f8;">
+<div class="main">
+	<div class="content" id="scroller" ng-show="lists.length!=0" >
+			<div class="weui_cells" >
+		     <div class="weui_cell"  ng-repeat="toilet in lists" on-hold="onHold('{{toilet.id}}')">
+			     <div class="weui_cell_bd weui_cell_primary" ng-if="toilet.status==1||toilet.status==2||toilet.status==3||toilet.status==4" ng-click="agentRemoteInfo('{{toilet.toiletName}}')">
+			         <p class="f-blue" style="font-size:18px;">{{toilet.toiletName}}</p>
+			     </div>
+			     <div class="weui_cell_bd weui_cell_primary" ng-if="toilet.status==5" ng-click="scanQRCode()"  >
+			         <p class="f-blue" style="font-size:18px;">{{toilet.toiletName}}</p>
+			     </div>
+			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 1" ng-click="agentRemoteInfo('{{toilet.toiletName}}')"><span class='f-green'>运行</span></div>
+			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 2" ng-click="agentRemoteInfo('{{toilet.toiletName}}')"><span class='f-gray'>冲水</span></div>
+			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 3" ng-click="agentRemoteInfo('{{toilet.toiletName}}')"><span class='f-red'>异常</span></div>
+			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 4" ng-click="agentRemoteInfo('{{toilet.toiletName}}')"><span class='f-red'>离线</span></div>
+			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 5" ng-click="scanQRCode()"  ><span class='f-red'>尚未关联设备</span></div>
+			     <div class="weui_cell_ft" >
+			     <a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_primary" ng-if="toilet.status == 1 || toilet.status == 3  " ng-click="flushOpen('{{toilet.deviceCode}}')">强冲</a>
+			     <a href="javascript:;" class="weui_btn weui_btn_disabled weui_btn_mini weui_btn_default" ng-if="toilet.status == 2 || toilet.status == 4 ">强冲</a>
+			     </div>
+		     </div>
+			</div> 
+			<div class="dropload-down">
+		      	<div class="dropload-refresh">
+	                  当前<span ng-bind="lists.length"></span>条记录 总共<span ng-bind="total"></span>条记录(滑动刷新)
+		       </div>
+      		</div>
+	</div>
+</div>
+<div style="background-image:url('/sp/public/images/rush/8.png');background-size:40%;background-repeat:no-repeat;background-position-x:center;background-position-y:center; width:100%;height:550px;">
+</div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<link rel="stylesheet" href="/sp/public/weui/css/weui.css">
+<link rel="stylesheet" href="/sp/public/weui/css/weui2.css"/>
+<link rel="stylesheet" href="/sp/public/weui/css/weui3.css"/>
+<script src="/sp/public/widgets/layer.m/layer.m.js"></script>
+<script src="/sp/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/sp/public/widgets/dropload/dropload.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/sp/public/js/zepto.min.js"></script> 
+<script type="text/javascript">
+angular.module('app', ['ngTouch'])
+	.value('appValue', {
+	    index: 1,
+	    size: 10
+	})
+	 .factory('agentChat_time',['$http','appValue',function($http, appValue){
+			return {
+				getData:function(number,size){
+					return $http({
+						method:'JSONP',
+						url:'http://47.98.200.5:8080/watersaving/api/flush/curDateFlush?callback=queryChat_Time',
+						params:{
+							createTime:'${time}'
+						}
+					});
+				}
+			}
+	 }])
+	 .controller('MainController',['$scope','appValue','agentChat_time','$timeout',function($scope, appValue,agentChat_time,$timeout){
+		 $scope.lists = [];
+		 $scope.agentWater = function(){
+			 agentChat_time.getData().then(function(response){
+			 },function(resphonse){
+			 });
+		 }
+		 window.queryChat_Time = function(data){
+			 console.log(data);
+			 if(data.length >0){
+				 $scope.lists = data;
+			 }
+		 }
+		 $scope.agentWater();
+	 }]);
+</script>
+</head>
+<body ng-cloak ng-controller="MainController" style="background-color: #f8f8f8;">
+<div class="page-bd">
+	<div class="weui-flex">
+         <div class="weui-flex-item"><div class="placeholder" style="background-color:#F8F8F8;">${time}</div></div>
+   </div>
+</div>
+<table class="weui-table weui-border-tb" >
+     <thead>
+     <tr><th>时间</th><th>冲水量</th></tr>
+     </thead>
+     <tbody ng-if="lists.length == 0">
+     <tr ><td colspan="2">暂无数据...</td></tr>
+     </tbody>
+     <tbody ng-if="lists.length >0">
+     	<tr ng-repeat="water in lists">
+     		<td>{{water.createTime}}</td>
+     		<td>{{water.flushValue}}</td>
+     	</tr>
+     </tbody>
+ </table>
+</body>
+</html>
