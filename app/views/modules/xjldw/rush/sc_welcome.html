@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<!--  -->
+<link rel="stylesheet" href="/sp/public/weui/css/weui.css">
+<link rel="stylesheet" href="/sp/public/weui/css/weui2.css"/>
+<link rel="stylesheet" href="/sp/public/weui/css/weui3.css"/>
+<title>闪冲</title>
+<script type="text/javascript">
+function jump(){
+	 location.replace('/sp/LoginService/toBindSchool');
+}
+</script>
+</head>
+<body ontouchstart style="background-color: #f8f8f8;">
+<div class="page-bd">
+	 <div style="margin:10px;">
+	 	<h1 class="page-hd-title">
+            您好，欢迎关注闪冲
+        </h1>
+        <p class="page-hd-desc">第一次关注，请选选择院校</p>
+	 </div>
+     <div class="weui-flex">
+           	 	<div class="weui-flex-item">
+           	 		<div class="placeholder" style="background-color: #f8f8f8;"><img alt="" src="/sp/public/images/rush/sc.png" style="width:150px;height:150px;"></div>
+                </div>
+      </div>
+      <div class="weui-flex" style="margin-top:130px;">
+            <div class="weui-flex-item" >
+            	<div class="placeholder" style="background-color: #f8f8f8;">
+            		<a href="#" onclick="jump()" class=" text-info">选择院校</a>
+            	</div>
+            </div>
+      </div>
+</div>
+</body>
+</html>

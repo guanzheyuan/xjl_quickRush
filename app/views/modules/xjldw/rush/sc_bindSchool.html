@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<link rel="stylesheet" href="/sp/public/weui/css/weui.css">
+<link rel="stylesheet" href="/sp/public/weui/css/weui2.css"/>
+<link rel="stylesheet" href="/sp/public/weui/css/weui3.css"/>
+<!--  -->
+<script src="/sp/public/js/jquery-1.9.1.min.js"></script>
+<script src="/sp/public/weui/js/jquery-weui.js"></script>
+<script src="/sp/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/sp/public/widgets/dropload/dropload.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/sp/public/js/zepto.min.js"></script>
+<script src="/sp/public/widgets/picker/js/picker.js"></script>
+<script type="text/javascript">
+angular.module('app', ['ngTouch'])
+		.value('appValue', {
+		    index: 1,
+		    size: 10
+		})
+		.factory('agentRemote',['$http','appValue',function($http, appValue){
+			return {
+				query:function(){
+					return $http({
+						method:'post',
+						url:'/sp/LoginService/querySchool'
+					});
+				},
+				bindSchool:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/LoginService/bindSchool',
+						params:data
+					});
+				},
+				queryRept:function(){
+					return $http({
+						method:'post',
+						url:'/sp/LoginService/querySchoolUserByWxOpenId'
+					});
+				}
+			}
+		}])
+		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue,agentRemote,$timeout){
+			$scope.objArr = {
+					  arrayId:[],
+					  arrayName:[]
+			  }
+			$scope.bindSchool = function(){
+				if($('#school').val() == ''){
+					$.toptips('请选择院校','warning');return;
+				}
+				var schoolId = "";
+				for(var i = 0;i<$scope.objArr.arrayName.length;i++){
+					if($scope.objArr.arrayName[i] == $('#school').val()){
+						schoolId  = $scope.objArr.arrayId[i];
+					}
+				}
+				var data = {"schoolId":schoolId};
+				agentRemote.queryRept().then(function(response){
+					console.log(response);
+					if(!response.data.data){
+						agentRemote.bindSchool(data).then(function(response){
+							$('#bindSchool').addClass('weui_btn_disabled');
+							if(response.status=='200'){
+								 $.toast("操作成功");
+								 setTimeout(function() {
+									 //location.href = "";
+									 location.replace('/sp/mobile/Skip/toRush?bindFlag=1');
+							     },2000)
+							}
+						},function(response){
+						})
+					}else{
+						  $.toast("请勿重复绑定学校", "forbidden");
+					}
+				})
+			}
+			//初始化学校
+			$scope.initSchool = function(){
+				agentRemote.query().then(function(response){
+				  var list = response.data.data;
+				  if(list.length > 0){
+					  for(var i=0;i<list.length;i++){
+						  $scope.objArr.arrayId.push(list[i].schoolId);
+						  $scope.objArr.arrayName.push(list[i].schoolName);
+					  }
+				  }
+				  $("#school").picker({
+				        title: "选择学校",
+				        toolbarCloseText:'确定',
+				        cols: [
+				          {
+				            textAlign: 'center',
+				            values:$scope.objArr.arrayName
+				          }
+				        ]
+				 });
+				  
+				 
+				},function(response){
+				})
+			}
+			$scope.initSchool();
+		}]);
+</script>
+</head>
+<body ng-cloak ng-controller="MainController" ontouchstart style="background-color: #f8f8f8;">
+<div class="page-bd">
+	<div class="weui-flex">
+           	 	<div class="weui-flex-item">
+           	 		<div class="placeholder" style="background-color: #f8f8f8;"><img alt="" src="/sp/public/images/rush/school.png" style="width:150px;height:150px;"></div>
+                </div>
+      </div>
+       <div class="" style="margin-top:130px;">
+              <div class="" style="text-align:center;">选择学校</div>
+              <div class="weui_cell_bd weui_cell_primary" style="padding:15px;">
+                  <input class="weui_input" style="text-align:center;" type="text" value="" id='school'/>
+              </div>
+        </div>
+        <div style="margin:10px;margin-top:10%;">
+        	<a href="javascript:;" class="weui_btn weui_btn_primary" ng-click="bindSchool()" id="bindSchool">确定</a>
+        </div> 
+</div>
+</body>
+</html>

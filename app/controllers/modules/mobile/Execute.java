@@ -26,6 +26,8 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import com.google.common.io.Files;
 import com.mysql.fabric.xmlrpc.base.Array;
+import com.mysql.jdbc.log.Log;
+
 import controllers.comm.SessionInfo;
 import controllers.modules.mobile.bo.WxUserBo;
 import controllers.modules.mobile.bo.XjlScConfigBo;
@@ -36,6 +38,7 @@ import models.modules.mobile.WxServer;
 import models.modules.mobile.WxUser;
 import models.modules.mobile.XjlScConfig;
 import models.modules.mobile.XjlScLog;
+import models.modules.mobile.XjlScSchool;
 import models.modules.mobile.XjlScToiletInfo;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -54,6 +57,9 @@ import utils.WxPushMsg;
 
 public class Execute  extends MobileFilter {
 	
+	/**
+	 * 记录日志
+	 */
 	public static void saveScLog(){
 		 String errorCode = params.get("errorCode");
 		 String errorDesc = params.get("errorDesc");
@@ -65,6 +71,9 @@ public class Execute  extends MobileFilter {
 		 XjlScLogBo.save(xjlScLog);
 	}
 	
+	/**
+	 * 查询日志
+	 */
 	public static void queryScLog(){
 		Map<String,String> condition = new HashMap<>();
 		Map map = XjlScLog.query(condition,1,1000000);
@@ -169,7 +178,9 @@ public class Execute  extends MobileFilter {
 		XjlScConfig.modifyIntervalById(new_timeQuanTum,iterval, id);
 	}
 	
-	
+	/**
+	 * 查询卫生间
+	 */
 	public static void querytoilet(){
 		Map<String,String> condition = new HashMap<>();
 		Map ret = XjlScToiletInfo.query(condition, 1, 100000000);

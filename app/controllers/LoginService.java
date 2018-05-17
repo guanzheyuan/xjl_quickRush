@@ -1,4 +1,6 @@
 package controllers;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import play.Logger;
 import play.cache.Cache;
@@ -6,7 +8,11 @@ import play.i18n.Messages;
 import controllers.comm.BOResult;
 import controllers.comm.BaseController;
 import controllers.comm.SessionInfo;
+import controllers.modules.mobile.bo.XjlScSchoolUserBo;
 import controllers.modules.mobile.filter.MobileFilter;
+import models.modules.mobile.WxUser;
+import models.modules.mobile.XjlScSchool;
+import models.modules.mobile.XjlScSchoolUser;
 import utils.CommonValidateUtil;
 import utils.SecurityUtil;
 import utils.StringUtil;
@@ -54,10 +60,45 @@ public class LoginService extends BaseController {
  	public static void bindStudent() {
  	}
 
- 	 /**
-     * 绑定老师页面
-     */
-    public static void teacherBind(){
-	    render("modules/xjldw/mobile/my/teacher_bind.html");
-    }
+ 	/**
+	 * 跳转闪冲绑定学校
+	 */
+	public static void toBindSchool(){
+		render("modules/xjldw/rush/sc_bindSchool.html");
+	}
+	/**
+	 * 查询所有学校
+	 */
+	public static void querySchool(){
+		Map<String,String> condition = new HashMap<>();
+		List<XjlScSchool> data = XjlScSchool.querySchoolList(condition, 1, 99999);
+		Logger.info("===================]");
+		ok(data);
+	}
+	
+	/**
+	 * 绑定学校
+	 */
+	public static void bindSchool(){
+		SessionInfo sessionInfo=MobileFilter.getSessionInfo();
+ 		WxUser wxUser =sessionInfo.getWxUser();
+ 		String schoolId = params.get("schoolId");
+ 		XjlScSchoolUser xjlScSchoolUser = new XjlScSchoolUser();
+ 		xjlScSchoolUser.schoolId = Long.valueOf(schoolId);
+ 		xjlScSchoolUser.wxOpenId = wxUser.wxOpenId;
+ 		xjlScSchoolUser = XjlScSchoolUserBo.save(xjlScSchoolUser);
+ 		ok(xjlScSchoolUser);
+	}
+	
+	/**
+	 * 验证是否绑定过
+	 */
+	public static void querySchoolUserByWxOpenId(){
+		SessionInfo sessionInfo=MobileFilter.getSessionInfo();
+ 		WxUser wxUser =sessionInfo.getWxUser();
+ 		Map<String,String> condition = new HashMap<>();
+ 		condition.put("wxOpenId",wxUser.wxOpenId);
+ 		XjlScSchoolUser xjlSchoolUser = XjlScSchoolUser.queryFindByWxOpenId(condition, 1,10);
+ 		ok(StringUtil.isNotEmpty(xjlSchoolUser));
+	}
 }

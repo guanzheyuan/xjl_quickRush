@@ -25,8 +25,13 @@ public class WxUser extends GenericModel {
 	@Column(name = "WX_OPEN_ID")
 	public String wxOpenId; 
 
-//	@Column(name = "company_id")
-//	public Long companyId;
+
+	@Column(name = "TEACHER_ID")
+	public Long teacherId;
+	
+	@Column(name = "SCHOOL_ID")
+	public Long schoolId;
+
 
 	@Column(name = "NICK_NAME")
 	public String nickName;
@@ -75,7 +80,12 @@ public class WxUser extends GenericModel {
 	
 	@Transient
 	public WxServer wxServer;
+	//当前是老师
+	@Transient
+	public boolean isBinding;
 	
+	@Transient
+	public boolean isAdmin;
 	
 	/**
 	 * 通过微信编号得到用户信息
@@ -98,6 +108,13 @@ public class WxUser extends GenericModel {
         	log.debug("........................."+retData.get(0));
         	log.debug("一共查询符合条件的数据有:" + retData.size());
         	WxUser wxUser = retData.get(0);
+        	//查询该用户是否绑定学校
+        	XjlScSchoolUser xjlSchoolUser = XjlScSchoolUser.queryFindByWxOpenId(condition, pageIndex, pageSize);
+        	wxUser.isBinding = StringUtil.isNotEmpty(xjlSchoolUser);
+        	//查询该用户是否绑定为管理员
+        	if(StringUtil.isNotEmpty(xjlSchoolUser)){
+        		wxUser.isAdmin = StringUtil.isEmpty(xjlSchoolUser.isAdmin)?false:true;
+        	}
         	log.debug("........................."+retData.get(0).nickName);
         	return wxUser;
         }
