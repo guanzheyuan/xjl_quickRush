@@ -552,7 +552,7 @@ angular.module('app', ['ngTouch'])
 		 $.prompt("新建卫生间", "", function(text) {
 			 var data = {"toiletName":text};
 	          agentRemote.saveToilet(data).then(function(response){
-	        	  
+	        	  $.toast("操作成功");
 	          },function(response){
 	          })
 	        }, function() {

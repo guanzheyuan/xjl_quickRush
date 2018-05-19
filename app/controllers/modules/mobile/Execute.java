@@ -32,6 +32,7 @@ import controllers.comm.SessionInfo;
 import controllers.modules.mobile.bo.WxUserBo;
 import controllers.modules.mobile.bo.XjlScConfigBo;
 import controllers.modules.mobile.bo.XjlScLogBo;
+import controllers.modules.mobile.bo.XjlScSchoolToiletBo;
 import controllers.modules.mobile.bo.XjlScToiletInfoBo;
 import controllers.modules.mobile.filter.MobileFilter;
 import models.modules.mobile.WxServer;
@@ -39,6 +40,8 @@ import models.modules.mobile.WxUser;
 import models.modules.mobile.XjlScConfig;
 import models.modules.mobile.XjlScLog;
 import models.modules.mobile.XjlScSchool;
+import models.modules.mobile.XjlScSchoolToilet;
+import models.modules.mobile.XjlScSchoolUser;
 import models.modules.mobile.XjlScToiletInfo;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -64,10 +67,12 @@ public class Execute  extends MobileFilter {
 		 String errorCode = params.get("errorCode");
 		 String errorDesc = params.get("errorDesc");
 		 String methodName = params.get("methodName");
+		 String exceptionType = params.get("exceptionType");
 		 XjlScLog xjlScLog = new XjlScLog();
 		 xjlScLog.errorCode = errorCode;
 		 xjlScLog.errorDesc = errorDesc;
 		 xjlScLog.methodName = methodName;
+		 xjlScLog.exceptionType =exceptionType;
 		 XjlScLogBo.save(xjlScLog);
 	}
 	
@@ -182,8 +187,12 @@ public class Execute  extends MobileFilter {
 	 * 查询卫生间
 	 */
 	public static void querytoilet(){
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		WxUser wxUser = getWXUser();
 		Map<String,String> condition = new HashMap<>();
-		Map ret = XjlScToiletInfo.query(condition, 1, 100000000);
+		condition.put("schoolId",String.valueOf(wxUser.schoolId));
+		Map ret = XjlScToiletInfo.query(condition, pageIndex, pageSize);
 		ok(ret);
 	}
 	/**
@@ -194,7 +203,12 @@ public class Execute  extends MobileFilter {
 		XjlScToiletInfo xjlScToiletInfo = new XjlScToiletInfo();
 		xjlScToiletInfo.toiletName = toiletName;
 		xjlScToiletInfo.toiletCode="AAB";
-		XjlScToiletInfoBo.save(xjlScToiletInfo);
+		WxUser wxUser = getWXUser();
+		xjlScToiletInfo = XjlScToiletInfoBo.save(xjlScToiletInfo);
+		XjlScSchoolToilet xjlScSchoolToilet = new XjlScSchoolToilet();
+		xjlScSchoolToilet.toiletId = xjlScToiletInfo.id;
+		xjlScSchoolToilet.schoolId = wxUser.schoolId;
+		xjlScSchoolToilet = XjlScSchoolToiletBo.save(xjlScSchoolToilet);
 	}
 	
 	
@@ -222,6 +236,71 @@ public class Execute  extends MobileFilter {
 		String id = params.get("id");
 		String toiletName = params.get("toiletName");
 		XjlScToiletInfo.modifyToilet(toiletName, id);
+	}
+	
+	/**
+	 * 配置绑定设备
+	 */
+	public static void modifyBindCode(){
+		String controllerCode = params.get("controllerCode");
+		String sensorCode = params.get("sensorCode");
+		String radiotubeCode = params.get("radiotubeCode");
+		String liquidCode = params.get("liquidCode");
+		String id = params.get("id");
+		int ret = XjlScToiletInfo.modifyToiletCode(controllerCode, sensorCode, radiotubeCode, liquidCode, id);
+		ok(ret);
+	}
+	
+	/**
+	 * 关注学校的人
+	 */
+	public static void queryAttentionUserForSchool(){
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		WxUser wxUser = getWXUser();
+		Map<String,String> condition = new HashMap<>();
+		condition.put("schoolId", String.valueOf(wxUser.schoolId));
+		Map map = WxUser.queryUserBySchool(condition, pageIndex, pageSize);
+		ok(map);
+	}
+	
+	/**
+	 * 通过微信公众号得到信息
+	 */
+	public static void queryUserByWxOpenId(){
+		String openid = params.get("wxOpenId");
+		WxUser wxUser = WxUser.getUserByOpenId(openid);
+		int pageIndex = 1;
+        int pageSize = 100;
+        Map condition = new HashMap<String, String>();
+        condition.put("wxOpenId", openid);
+        XjlScSchoolUser xjlSchoolUser = XjlScSchoolUser.queryFindByWxOpenId(condition, pageIndex, pageSize);
+		if(StringUtil.isNotEmpty(xjlSchoolUser)){
+			wxUser.xjlScSChool = XjlScSchool.getSchoolBySchoolId(xjlSchoolUser.schoolId,"");
+		}
+		ok(wxUser);
+	}
+	
+	/**
+	 * 待审核
+	 */
+	public static void queryCheckPending(){
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Map<String,String> condition = new HashMap<>();
+		List<XjlScSchoolUser> data = XjlScSchoolUser.queryCheckPending(condition, pageIndex, pageSize);
+		ok(data);
+	}
+	
+	/**
+	 * 审核操作
+	 */
+	public static void doModifyCheck(){
+		String id = params.get("id");
+		String status = params.get("status");
+		String _status = "pass".equals(status)?"0AA":"0XX";
+		int ret = XjlScSchoolUser.modifyCheck(id,_status);
+		ok(ret);
 	}
 	
 }

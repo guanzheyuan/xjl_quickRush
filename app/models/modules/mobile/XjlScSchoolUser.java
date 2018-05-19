@@ -1,6 +1,8 @@
 package models.modules.mobile;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,8 +10,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import play.db.jpa.GenericModel;
+import utils.StringUtil;
 import utils.jpa.SQLResult;
 
 @Entity
@@ -37,6 +41,8 @@ public class XjlScSchoolUser extends GenericModel {
 	@Column(name = "CREATE_TIME")
 	public Date createTime;
 	
+	@Transient
+	public String nickName;
 	
 	/**
 	 * 通过微信编号得用户绑定信息
@@ -46,7 +52,7 @@ public class XjlScSchoolUser extends GenericModel {
 	 * @return
 	 */
 	public static XjlScSchoolUser queryFindByWxOpenId(Map<String, String> condition,int pageIndex, int pageSize){
-		String sql = "select * from xjl_sc_school_user where status='0AA' and WX_OPEN_ID='"+condition.get("wxOpenId")+"'";
+		String sql = "select * from xjl_sc_school_user where status='0AA'  and WX_OPEN_ID='"+condition.get("wxOpenId")+"'";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<XjlScSchoolUser> data = ModelUtils.queryData(pageIndex, pageSize, ret, XjlScSchoolUser.class);
 		if(data.isEmpty()){
@@ -54,5 +60,45 @@ public class XjlScSchoolUser extends GenericModel {
 		}else{
 			return data.get(0);
 		}
+	}
+	
+	public static XjlScSchoolUser queryFindCheckByWxOpenId(Map<String, String> condition,int pageIndex, int pageSize){
+		String sql = "select * from xjl_sc_school_user where status='0UU'  and WX_OPEN_ID='"+condition.get("wxOpenId")+"'";
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<XjlScSchoolUser> data = ModelUtils.queryData(pageIndex, pageSize, ret, XjlScSchoolUser.class);
+		if(data.isEmpty()){
+			return null;
+		}else{
+			return data.get(0);
+		}
+	}
+	
+	public static List<XjlScSchoolUser> queryCheckPending(Map<String, String> condition,
+			int pageIndex, int pageSize){
+		String sql="select b.nick_name,b.wx_open_id,a.id from xjl_sc_school_user a,wx_user b where a.wx_open_id=b.wx_open_id and a.status='0UU' order by a.create_time desc";
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<Object[]> retData = ModelUtils.queryData(pageIndex, pageSize, ret);
+		List<XjlScSchoolUser> data  = new ArrayList<>();
+		XjlScSchoolUser xjlScSchoolUser;
+		for(Object[]m :retData){
+			xjlScSchoolUser = new XjlScSchoolUser();
+			if(m[0]!=null){
+				xjlScSchoolUser.nickName =m[0].toString(); 
+			}
+			if(m[1]!=null){
+				xjlScSchoolUser.wxOpenId = m[1].toString();
+			}
+			if(m[2]!=null){
+				xjlScSchoolUser.id = StringUtil.getLong(m[2].toString());
+			}
+			data.add(xjlScSchoolUser);
+		}
+		return data;
+	}
+	
+	public static int modifyCheck(String id,String status){
+		String sql = "update xjl_sc_school_user set status='"+status+"' where id='"+id+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
 	}
 }

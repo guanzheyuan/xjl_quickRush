@@ -255,13 +255,12 @@ public class MobileFilter extends BaseController{
 		//没有绑定学校
 		if (wxUser!=null&&!wxUser.isBinding&&("testPC".equals(deviceFlag)||isMobile(userAgent))){
 			if(wxUser!=null){
-				Logger.info("缓存用户信息不为空:"+wxUser.wxOpenId+":"+wxUser.nickName);
+				Logger.info("缓存用户信息不为空:"+wxUser.wxOpenId+":"+wxUser.isBinding);
 			}
 			render("modules/xjldw/rush/sc_welcome.html");
 		} else {
 			if(!"PC".equals(sessionInfo.getDeviceFlag())){
 				log.debug("当前登录设备不是pc，是:" + sessionInfo.getDeviceFlag());
-				log.debug("当前登录用户:"+wxUser.nickName);
 				 //Logger.info("当前登录用户:"+wxUser.nickName + " 当前班级:"+wxUser.currentClass.className);	
 			}
 		}

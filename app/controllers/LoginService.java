@@ -66,6 +66,9 @@ public class LoginService extends BaseController {
 	public static void toBindSchool(){
 		render("modules/xjldw/rush/sc_bindSchool.html");
 	}
+	
+	
+	
 	/**
 	 * 查询所有学校
 	 */
@@ -99,6 +102,18 @@ public class LoginService extends BaseController {
  		Map<String,String> condition = new HashMap<>();
  		condition.put("wxOpenId",wxUser.wxOpenId);
  		XjlScSchoolUser xjlSchoolUser = XjlScSchoolUser.queryFindByWxOpenId(condition, 1,10);
+ 		ok(StringUtil.isNotEmpty(xjlSchoolUser));
+	}
+	
+	/**
+	 * 验证是否绑定过
+	 */
+	public static void querySchoolCheckUserByWxOpenId(){
+		SessionInfo sessionInfo=MobileFilter.getSessionInfo();
+ 		WxUser wxUser =sessionInfo.getWxUser();
+ 		Map<String,String> condition = new HashMap<>();
+ 		condition.put("wxOpenId",wxUser.wxOpenId);
+ 		XjlScSchoolUser xjlSchoolUser = XjlScSchoolUser.queryFindCheckByWxOpenId(condition, 1,10);
  		ok(StringUtil.isNotEmpty(xjlSchoolUser));
 	}
 }

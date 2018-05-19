@@ -37,6 +37,10 @@ public class XjlScLog extends GenericModel {
 	public Date createTime;
 	
 	
+	@Column(name = "exception_type")
+	public String exceptionType;
+	
+	
 	public static Map query(Map<String, String> condition,
 			int pageIndex, int pageSize){
 		String sql = "select * from xjl_sc_log where status='0AA' order by create_time desc";

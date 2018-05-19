@@ -47,10 +47,28 @@ angular.module('app', ['ngTouch'])
 						method:'post',
 						url:'/sp/LoginService/querySchoolUserByWxOpenId'
 					});
+				},
+				queryReptCheck:function(){
+					return $http({
+						method:'post',
+						url:'/sp/LoginService/querySchoolCheckUserByWxOpenId'
+					});
+				}
+				
+			}
+		}])
+		.factory('log',['$http','appValue',function($http, appValue){
+			return {
+				save:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/saveScLog',
+						params:data
+					});
 				}
 			}
 		}])
-		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue,agentRemote,$timeout){
+		.controller('MainController',['$scope','appValue','agentRemote','log','$timeout',function($scope, appValue,agentRemote,log,$timeout){
 			$scope.objArr = {
 					  arrayId:[],
 					  arrayName:[]
@@ -66,24 +84,38 @@ angular.module('app', ['ngTouch'])
 					}
 				}
 				var data = {"schoolId":schoolId};
-				agentRemote.queryRept().then(function(response){
-					console.log(response);
+				agentRemote.queryReptCheck().then(function(response){
 					if(!response.data.data){
-						agentRemote.bindSchool(data).then(function(response){
-							$('#bindSchool').addClass('weui_btn_disabled');
-							if(response.status=='200'){
-								 $.toast("操作成功");
-								 setTimeout(function() {
-									 //location.href = "";
-									 location.replace('/sp/mobile/Skip/toRush?bindFlag=1');
-							     },2000)
+						agentRemote.queryRept().then(function(response){
+							if(!response.data.data){
+								agentRemote.bindSchool(data).then(function(response){
+									$('#bindSchool').addClass('weui_btn_disabled');
+									if(response.status=='200'){
+										 $.toast("操作成功");
+										 setTimeout(function() {
+											 $.confirm("", "已经提交申请，请等待审核！", function() {
+												  WeixinJSBridge.call('closeWindow');
+										        }, function() {
+										        	 WeixinJSBridge.call('closeWindow');
+										          //取消操作
+										        });
+									     },2000)
+									}
+								},function(response){
+								})
+							}else{
+								  var parmData = {"methodName":'queryRept',"errorDesc":'请勿重复绑定学校',"errorCode":'000',"exceptionType":'0'};
+								  log.save(parmData);
+								  $.toptips('请勿重复绑定学校！','warning')
 							}
-						},function(response){
-						})
+						});
 					}else{
-						  $.toast("请勿重复绑定学校", "forbidden");
+						var parmData = {"methodName":'queryReptCheck',"errorDesc":'已提交,请等待审核！',"errorCode":'000',"exceptionType":'0'};
+						 log.save(parmData);
+						 $.toptips('已提交审核,请等待！','warning')
 					}
-				})
+				},function(response){
+				});
 			}
 			//初始化学校
 			$scope.initSchool = function(){
@@ -94,6 +126,9 @@ angular.module('app', ['ngTouch'])
 						  $scope.objArr.arrayId.push(list[i].schoolId);
 						  $scope.objArr.arrayName.push(list[i].schoolName);
 					  }
+				  }else{
+					  var parmData = {"methodName":'initSchool',"errorDesc":'暂无数据',"errorCode":'000',"exceptionType":'0'};
+					  log.save(parmData);
 				  }
 				  $("#school").picker({
 				        title: "选择学校",
@@ -105,8 +140,6 @@ angular.module('app', ['ngTouch'])
 				          }
 				        ]
 				 });
-				  
-				 
 				},function(response){
 				})
 			}
@@ -117,12 +150,12 @@ angular.module('app', ['ngTouch'])
 <body ng-cloak ng-controller="MainController" ontouchstart style="background-color: #f8f8f8;">
 <div class="page-bd">
 	<div class="weui-flex">
-           	 	<div class="weui-flex-item">
-           	 		<div class="placeholder" style="background-color: #f8f8f8;"><img alt="" src="/sp/public/images/rush/school.png" style="width:150px;height:150px;"></div>
-                </div>
+      	 	<div class="weui-flex-item">
+        	 		<div class="placeholder" style="background-color: #f8f8f8;"><img alt="" src="/sp/public/images/rush/school.png" style="width:150px;height:150px;"></div>
+            </div>
       </div>
        <div class="" style="margin-top:130px;">
-              <div class="" style="text-align:center;">选择学校</div>
+              <div class="" style="text-align:center;font-weight:">选择学校</div>
               <div class="weui_cell_bd weui_cell_primary" style="padding:15px;">
                   <input class="weui_input" style="text-align:center;" type="text" value="" id='school'/>
               </div>

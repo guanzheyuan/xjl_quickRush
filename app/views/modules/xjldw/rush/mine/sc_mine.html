@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<meta charset="UTF-8">
+<title>我的</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<!--  -->
+<link rel="stylesheet" href="/sp/public/weui/css/weui.css">
+<link rel="stylesheet" href="/sp/public/weui/css/weui2.css"/>
+<link rel="stylesheet" href="/sp/public/weui/css/weui3.css"/>
+<script src="/sp/public/widgets/layer.m/layer.m.js"></script>
+<script src="/sp/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/sp/public/widgets/dropload/dropload.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/sp/public/js/zepto.min.js"></script>
+<script type="text/javascript">
+angular.module('app', ['ngTouch'])
+		.value('appValue', {
+		    index: 1,
+		    size: 10
+		})
+		.factory('agentRemote',['$http','appValue',function($http, appValue){
+			return {
+				queryById:function(){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/queryUserByWxOpenId'
+					});
+				}
+			}
+		}])
+		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue,agentRemote,$timeout){
+			$scope.user = [];
+			
+			//跳转异常日志
+			$scope.toErrorLog = function(){
+				window.location.href="/sp/mobile/Skip/toScLog";
+			}
+			//跳转关注学校
+			$scope.toAttention = function (){
+				window.location.href="/sp/mobile/Skip/toAttentionSchool";
+			}
+			//审核页面
+			$scope.toCheck = function(){
+				window.location.href="/sp/mobile/Skip/toCheckPending";
+			}
+			//初始化
+			$scope.initDate = function(){
+				agentRemote.queryById().then(function(response){
+					$scope.user = response.data.data;
+				},function(){
+				});
+			}
+			$scope.initDate();
+		}]);
+</script>
+</head>
+<body ng-cloak ng-controller="MainController" ontouchstart style="background-color: #f8f8f8;">
+<div class="weui_cells weui_cells_form">
+	<div class="weui_cell">
+	     <div class="weui_cell_hd" style="width:20%;"><label class="weui_label">昵称：</label></div>
+	     <div class="weui_cell_bd weui_cell_primary" style="float:left;">
+	         {{user.nickName}}
+	     </div>
+	</div>
+	<div class="weui_cell">
+	     <div class="weui_cell_hd" style="width:20%;"><label class="weui_label">性别：</label></div>
+	     <div class="weui_cell_bd weui_cell_primary" style="float:left;">
+	         {{user.sex}}
+	     </div>
+	</div>
+	<div class="weui_cell">
+	     <div class="weui_cell_hd" style="width:20%;"><label class="weui_label">角色：</label></div>
+	     <div class="weui_cell_bd weui_cell_primary" style="float:left;" ng-if="${wxUser.isAdmin} == false">
+	         普通人员
+	     </div>
+	     <div class="weui_cell_bd weui_cell_primary" style="float:left;" ng-if="${wxUser.isAdmin}== true">
+	         运营者
+	     </div>
+	</div>
+</div>
+<div class="page-bd" ng-if="${wxUser.isAdmin}== true">
+	<div class="weui-flex" style="margin-top:10%;">
+	      <div class="weui-flex-item" ng-click="toCheck()">
+	      	<div class="placeholder" style="background-color: #f8f8f8;">
+	      		<img alt="审核" src="/sp/public/images/rush/sh.png" style="width:30px;height:30px;" >
+	      		<div style="margin-top:-10%;font-size:13px;color:black;">待审核</div>
+	      	</div>
+	      </div>
+	      <div class="weui-flex-item" ng-click="toAttention()">
+	      	<div class="placeholder" style="background-color: #f8f8f8;">
+	      		<img alt="关注人" src="/sp/public/images/rush/gzr.png" style="width:30px;height:30px;" >
+	      		<div style="margin-top:-10%;font-size:13px;color:black;">关注人</div>
+	      	</div>
+	      </div>
+	</div>
+	<div class="weui-flex" style="margin-top:10%;">
+            <div class="weui-flex-item" ng-click="toErrorLog()";>
+            	<div class="placeholder" style="background-color: #f8f8f8;">
+	            	<img alt="日志" src="/sp/public/images/rush/err_log.png" style="width:30px;height:30px;" >
+		      		<div style="margin-top:-10%;font-size:13px;color:black;">日志</div>
+            	</div>
+            </div>
+            <div class="weui-flex-item">
+            	<div class="placeholder" style="background-color: #f8f8f8;"></div>
+            </div>
+        </div>
+</div>
+</body>
+</html>

@@ -1,4 +1,5 @@
 package models.modules.mobile;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -79,8 +80,13 @@ public class WxUser extends GenericModel {
 	public String userType;
 	
 	@Transient
+	public String  attentionTime;
+	
+	@Transient
 	public WxServer wxServer;
-	//当前是老师
+	
+	@Transient
+	public XjlScSchool xjlScSChool;
 	@Transient
 	public boolean isBinding;
 	
@@ -111,11 +117,13 @@ public class WxUser extends GenericModel {
         	//查询该用户是否绑定学校
         	XjlScSchoolUser xjlSchoolUser = XjlScSchoolUser.queryFindByWxOpenId(condition, pageIndex, pageSize);
         	wxUser.isBinding = StringUtil.isNotEmpty(xjlSchoolUser);
+        	if(StringUtil.isNotEmpty(xjlSchoolUser)){
+        		wxUser.xjlScSChool =  XjlScSchool.getSchoolBySchoolId(xjlSchoolUser.schoolId,"");
+        	}
         	//查询该用户是否绑定为管理员
         	if(StringUtil.isNotEmpty(xjlSchoolUser)){
-        		wxUser.isAdmin = StringUtil.isEmpty(xjlSchoolUser.isAdmin)?false:true;
+        		wxUser.isAdmin = "true".equals(xjlSchoolUser.isAdmin);
         	}
-        	log.debug("........................."+retData.get(0).nickName);
         	return wxUser;
         }
 	}
@@ -157,6 +165,41 @@ public class WxUser extends GenericModel {
 	    }
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<WxUser> data = ModelUtils.queryData(pageIndex, pageSize, ret, WxUser.class);
+		return ModelUtils.createResultMap(ret, data);
+	}
+	
+	public static Map queryUserBySchool(Map<String, String> condition,int pageIndex, int pageSize){
+		String sql ="select  a.wx_open_id,a.nick_name,a.sex,a.country,a.city,a.is_concerned,b.create_time from wx_user a ,xjl_sc_school_user b "
+				+ "where b.status='0AA'and a.wx_open_id=b.wx_open_id and b.school_id='"+condition.get("schoolId")+"'";
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<Object[]> retData = ModelUtils.queryData(pageIndex, pageSize, ret);
+		List<WxUser> data =  new ArrayList<WxUser>();
+		WxUser wxUser;
+		for(Object[]m :retData){
+			wxUser = new WxUser();
+			if(m[0]!=null){
+				wxUser.wxOpenId = m[0].toString();
+			}
+			if(m[1]!=null){
+				wxUser.nickName = m[1].toString();
+			}
+			if(m[2]!=null){
+				wxUser.sex = m[2].toString();
+			}
+			if(m[3]!=null){
+				wxUser.country = m[3].toString();
+			}
+			if(m[4]!=null){
+				wxUser.city = m[4].toString();
+			}
+			if(m[5]!=null){
+				wxUser.isConcerned = m[5].toString();
+			}
+			if(m[6]!=null){
+				wxUser.attentionTime = m[6].toString();
+			}
+			data.add(wxUser);
+		}
 		return ModelUtils.createResultMap(ret, data);
 	}
 }

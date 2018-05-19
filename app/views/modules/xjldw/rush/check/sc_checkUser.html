@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<title>审核用户</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<!--  -->
+<link rel="stylesheet" href="/sp/public/weui/css/weui.css">
+<link rel="stylesheet" href="/sp/public/weui/css/weui2.css"/>
+<link rel="stylesheet" href="/sp/public/weui/css/weui3.css"/>
+
+<script src="/sp/public/widgets/layer.m/layer.m.js"></script>
+<script src="/sp/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/sp/public/widgets/dropload/dropload.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/sp/public/js/zepto.min.js"></script> 
+<script type="text/javascript">
+angular.module('app', ['ngTouch'])
+		.value('appValue', {
+		    index: 1,
+		    size: 10
+		})
+		.factory('agentRemote',['$http','appValue',function($http, appValue){
+			return {
+				checkPending:function(){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/queryCheckPending'
+					});
+				},
+				doCheck:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/doModifyCheck',
+						params:data
+					});
+				}
+			}
+		}])
+		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue,agentRemote,$timeout){
+			$scope.checkPeding = [];
+			$scope.doCheck = function(id,status){
+				var data = {'id':id,"status":status};
+				agentRemote.doCheck(data).then(function(response){
+					$scope.initData();
+				},function(response){
+				})
+			}
+			$scope.initData = function(){
+				agentRemote.checkPending().then(function(response){
+					console.log(response);
+					$scope.checkPeding  = response.data.data;
+				},function(response){
+				});
+			}
+			$scope.initData();
+		}]);
+</script>
+</head>
+<body ng-cloak ng-controller="MainController" ontouchstart style="background-color: #f8f8f8;">
+<div class="page-bd">
+	<div style="margin:10px;">
+	 	<h1 class="page-hd-title">
+            待审核列表
+        </h1>
+	 </div>
+	 <div class="weui_panel weui_panel_access" ng-repeat="check in checkPeding">
+            <div class="weui_panel_bd" >
+                <div class="weui_media_box weui_media_text">
+                    <h4 class="weui_media_title"><img alt="" src="/sp/public/images/rush/check_wx.png" style="width:30px;height:30px;"></h4>
+                    <p class="weui_media_desc">{{check.nickName}}</p>
+                    <p class="weui_media_desc" style="float:right;margin-top:-10%;">
+                    	<a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_default" ng-click="doCheck('{{check.id}}','noPass')">不通过</a>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_primary" ng-click="doCheck('{{check.id}}','pass')">通 过</a>
+                    </p>
+                </div>
+            </div>
+       </div>      
+</div>
+</body>
+</html>
