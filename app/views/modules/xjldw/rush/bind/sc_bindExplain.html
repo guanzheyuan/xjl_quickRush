@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<title>绑定设备</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<!--  -->
+<link rel="stylesheet" href="/sp/public/weui/css/weui.css">
+<link rel="stylesheet" href="/sp/public/weui/css/weui2.css"/>
+<link rel="stylesheet" href="/sp/public/weui/css/weui3.css"/>
+
+<script src="/sp/public/widgets/layer.m/layer.m.js"></script>
+<script src="/sp/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/sp/public/widgets/dropload/dropload.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/sp/public/js/zepto.min.js"></script> 
+<script type="text/javascript">
+ c                                                                                                                                                                                                                                                                                                                          .module('app', ['ngTouch'])
+	.value('appValue', {
+	    index: 1,
+	    size: 10
+	})
+	.factory('agentRemote',['$http','appValue',function($http, appValue){
+		return {
+			bindExp:function(data){
+				return $http({
+					method:'post',
+					url:'/sp/mobile/Execute/modifyBindCode',
+					params:data
+				});
+			}
+		}
+	}])
+	.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue,agentRemote,$timeout){
+		
+		//控制器
+		$scope.toControl = function(){
+			location.href="/sp/mobile/Skip/toBindControl?params=${toilet}&id=${id}";
+		}
+		//传感器
+		$scope.toSensor = function(){
+			location.href="/sp/mobile/Skip/toBindSensor?params=${toilet}&id=${id}";
+		}
+		//电磁阀
+		$scope.toRadiotube = function(){
+			location.href="/sp/mobile/Skip/toBindRadiotube?params=${toilet}&id=${id}";
+		}
+		//液位仪
+		$scope.toLiquid = function(){
+			location.href="/sp/mobile/Skip/toBindLiquid?params=${toilet}&id=${id}";
+		}
+		//wifi
+		$scope.toWifi = function(){
+			location.href="/sp/mobile/Skip/toWifi?params=${toilet}&id=${id}";
+		}
+		//驱蚊器
+		$scope.toMosq = function(){
+			location.href="/sp/mobile/Skip/toMosq?params=${toilet}&id=${id}";
+		}
+		$scope.doLineTcp = function(){
+			 $.toptips('暂无法链接tcp服务器','warning')
+		}
+	}])
+</script>
+</head>
+<body ng-cloak ng-controller="MainController" ontouchstart style="background-color: #f8f8f8;">
+<div class="page-bd">
+	<div style="margin:10px;">
+	 	<h1 class="page-hd-title">
+            ${toilet},绑定设备 
+        </h1>
+        <p class="page-hd-desc">请按照提示绑定设备！</p>
+	 </div>
+	 <div class="weui-flex">
+           	 	<div class="weui-flex-item">
+           	 		<div class="placeholder" style="background-color: #f8f8f8;">
+           	 			<img alt="" src="/sp/public/images/rush/high.png" style="width:150px;height:150px;" ng-if="${toiletInfo.isControl} == false || ${toiletInfo.isSensor} == false||${toiletInfo.isRadiotube} == false||${toiletInfo.isLiquid} == false||${toiletInfo.isWifi} == false || ${toiletInfo.isMosq} == false">
+           	 			<img alt="" src="/sp/public/images/rush/cloud_sub.png" style="width:150px;height:150px;" ng-click="doLineTcp()" ng-if="${toiletInfo.isControl} == true && ${toiletInfo.isSensor} == true&&${toiletInfo.isRadiotube} == true&&${toiletInfo.isLiquid} == true&&${toiletInfo.isWifi} == true&&${toiletInfo.isMosq} == true">
+           	 		</div>
+                </div>
+      </div>
+      <div class="page-bd">
+	      	<div class="weui-flex" style="margin-top:20%;">
+		      <div class="weui-flex-item" >
+		      	<div class="placeholder" style="background-color: #f8f8f8;">
+		      		<img alt="控制器" src="/sp/public/images/rush/kzq.png" style="width:30px;height:30px;" ng-click="toControl()" ng-if="${toiletInfo.isControl} == false" >
+		      		<img alt="控制器" src="/sp/public/images/rush/green_kzq.png" style="width:30px;height:30px;" ng-if="${toiletInfo.isControl} == true" >
+		      		<div style="margin-top:-10%;font-size:13px;color:black;">控制器</div>
+		      	</div>
+		      </div>
+		      <div class="weui-flex-item" >
+		      	<div class="placeholder" style="background-color: #f8f8f8;">
+		      		<img alt="传感器" src="/sp/public/images/rush/cgq.png" style="width:30px;height:30px;" ng-click="toSensor()" ng-if="${toiletInfo.isSensor} == false">
+		      	    <img alt="传感器" src="/sp/public/images/rush/green_cgq.png" style="width:30px;height:30px;"   ng-if="${toiletInfo.isSensor} == true">
+		      		<div style="margin-top:-10%;font-size:13px;color:black;">传感器</div>
+		      	</div>
+		      </div>
+			 </div>
+			 <!--  -->
+			 <div class="weui-flex" style="margin-top:10%;">
+	            <div class="weui-flex-item" >
+	            	<div class="placeholder" style="background-color: #f8f8f8;">
+		            	<img alt="电磁阀" src="/sp/public/images/rush/dcf.png" style="width:30px;height:30px;" ng-click="toRadiotube()" ng-if="${toiletInfo.isRadiotube} == false" >
+		            	<img alt="电磁阀" src="/sp/public/images/rush/green_dcf.png" style="width:30px;height:30px;"   ng-if="${toiletInfo.isRadiotube} == true" >
+			      		<div style="margin-top:-10%;font-size:13px;color:black;">电磁阀</div>
+	            	</div>
+	            </div>
+	            <div class="weui-flex-item" >
+	            	<div class="placeholder" style="background-color: #f8f8f8;">
+	            		<img alt="液位仪" src="/sp/public/images/rush/ywy.png" style="width:30px;height:30px;" ng-click="toLiquid()" ng-if="${toiletInfo.isLiquid} == false" >
+			      		<img alt="液位仪" src="/sp/public/images/rush/green_ywy.png" style="width:30px;height:30px;" ng-if="${toiletInfo.isLiquid} == true" >
+			      		<div style="margin-top:-10%;font-size:13px;color:black;">液位仪</div>
+	            	</div>
+	            </div>
+        	</div>
+        	<!--  -->
+        	<div class="weui-flex" style="margin-top:10%;">
+	            <div class="weui-flex-item" >
+	            	<div class="placeholder" style="background-color: #f8f8f8;">
+		            	<img alt="WIFI" src="/sp/public/images/rush/wifi.png" style="width:30px;height:30px;" ng-click="toWifi()" ng-if="${toiletInfo.isWifi} == false" >
+			      		<img alt="WIFI" src="/sp/public/images/rush/green_wifi.png" style="width:30px;height:30px;"   ng-if="${toiletInfo.isWifi} == true" >
+			      		<div style="margin-top:-10%;font-size:13px;color:black;">WIFI</div>
+	            	</div>
+	            </div>
+	            <div class="weui-flex-item">
+	            	<div class="placeholder" style="background-color: #f8f8f8;">
+	            		<img alt="驱蚊除味" src="/sp/public/images/rush/mosq.png" style="width:30px;height:30px;" ng-click="toMosq()" ng-if="${toiletInfo.isMosq} == false" >
+	            		<img alt="驱蚊除味" src="/sp/public/images/rush/green_mosq.png" style="width:30px;height:30px;"   ng-if="${toiletInfo.isMosq} == true" >
+	            		<div style="margin-top:-10%;font-size:13px;color:black;">驱蚊除味</div>
+	            	</div>
+	            </div>
+        	</div>
+      </div>
+</div>
+</body>
+</html>

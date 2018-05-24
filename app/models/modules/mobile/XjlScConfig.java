@@ -26,8 +26,14 @@ public class XjlScConfig extends GenericModel {
 	@Column(name = "interval")
 	public String interval;
 	
+	@Column(name = "leave_rush")
+	public String leaveRush;
+	
 	@Column(name = "STATUS")
 	public String status;
+	
+	@Column(name = "CONFIG_STATUS")
+	public String configStatus;
 
 	@Column(name = "CREATE_TIME")
 	public Date createTime;
@@ -35,7 +41,7 @@ public class XjlScConfig extends GenericModel {
 	
 	public static Map query(Map<String, String> condition,
 			int pageIndex, int pageSize){
-		String sql = "select * from xjl_sc_config where status = '0AA' and interval is null order by time_quantum asc";
+		String sql = "select * from xjl_sc_config where status = '0AA' and CONFIG_STATUS='1' order by time_quantum asc";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<XjlScConfig> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlScConfig.class);
 		return ModelUtils.createResultMap(ret, data);
@@ -51,7 +57,15 @@ public class XjlScConfig extends GenericModel {
 	
 	public static Map queryInterval(Map<String, String> condition,
 			int pageIndex, int pageSize){
-		String sql = "select * from xjl_sc_config where status='0AA' and interval is not null order by time_quantum asc";
+		String sql = "select * from xjl_sc_config where status='0AA' and config_status='2' order by time_quantum asc";
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<XjlScConfig> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlScConfig.class);
+		return ModelUtils.createResultMap(ret, data);
+	}
+	
+	public static Map queryMosq(Map<String, String> condition,
+			int pageIndex, int pageSize){
+		String sql="select * from xjl_sc_config where status='0AA' and  config_status='3' order by time_quantum asc";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<XjlScConfig> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlScConfig.class);
 		return ModelUtils.createResultMap(ret, data);
@@ -85,6 +99,14 @@ public class XjlScConfig extends GenericModel {
 		Map<String, String> condition = new HashMap<String, String>();
 		return ModelUtils.executeDelete(condition, sql);
 	}
+	
+	
+	public static int modifyLeaveRush(String leaveRush){
+		String sql = "update xjl_sc_config set leave_rush='"+leaveRush+"' where status='0AA' and  config_status='1' ";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
+ 
 	
 	public static XjlScConfig queryScConfigById(Long id){
 		String sql = "select * from xjl_sc_config where id='"+id+"'";

@@ -2,7 +2,7 @@
 <html ng-app="app">
 <head>
 <meta charset="UTF-8">
-<title>关联电磁阀</title>
+<title>绑定电磁阀</title>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="viewport"
@@ -69,7 +69,7 @@ angular.module('app', ['ngTouch'])
 						agentRemote.bindExp(data).then(function(response){
 							 $.toast("操作成功");
 							setTimeout(function() {
-								 location.replace('/sp/mobile/Skip/toBindLiquid?params=${toilet}&id=${id}');
+								location.href="/sp/mobile/Skip/toBindExplain?params= ${toilet}&id=${id}";
 						     },1000);
 						},function(response){
 							console.log(response);
@@ -84,9 +84,9 @@ angular.module('app', ['ngTouch'])
 <div class="page-bd">
 <div style="margin:10px;">
 	 	<h1 class="page-hd-title">
-            ${toilet},已关联传感器
+            ${toilet}
         </h1>
-        <p class="page-hd-desc">请按照提示顺序关联设备！</p>
+        <p class="page-hd-desc">请按照提示绑定设备！</p>
 	 </div>
 	 <div class="weui-flex">
            	 	<div class="weui-flex-item">
@@ -94,7 +94,7 @@ angular.module('app', ['ngTouch'])
                 </div>
       </div>
        <div style="margin:10px;margin-top:30%;">
-      	<a href="javascript:;" class="weui_btn weui_btn_primary" ng-click="relevance()">关联电磁阀</a>
+      	<a href="javascript:;" class="weui_btn weui_btn_primary" ng-click="relevance()">绑定电磁阀</a>
       </div>
       
 </div>

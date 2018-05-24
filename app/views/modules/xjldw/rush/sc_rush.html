@@ -84,27 +84,6 @@ angular.module('app', ['ngTouch','ionic'])
                              PAGE_SIZE: size || appValue.size
                          }
 					});
-				},
-				del:function(data){
-					return $http({
-						method:'post',
-						url:'/sp/mobile/Execute/delToilet',
-						params:data
-					});
-				},
-				queryById:function(data){
-					return $http({
-						method:'post',
-						url:'/sp/mobile/Execute/queryToiletById',
-						params:data
-					});
-				},
-				modifyToilet:function(data){
-					return $http({
-						method:'post',
-						url:'/sp/mobile/Execute/modifyToilet',
-						params:data
-					});
 				}
 			}
 		}])
@@ -178,44 +157,6 @@ angular.module('app', ['ngTouch','ionic'])
                  });
 		    }
 		    $scope.initLocal();
-		     $scope.onHold = function(param){
-		    	 $.actions({
-			          title: "选择操作",
-			          onClose: function() {
-			            console.log("close");
-			          },
-			          actions: [
-			            {
-			              text: "编辑",
-			              className: "color-warning",
-			              onClick: function() {
-			            	  var data = {"id":param}
-			                local.queryById(data).then(function(data){
-			                	console.log(data.data.data.toiletName);
-			                	$.prompt("修改卫生间", data.data.data.toiletName, function(text) {
-			           			 var data = {"toiletName":text,"id":param};
-			           	          local.modifyToilet(data).then(function(data){
-			           	        	$scope.initPage();
-			           	          })
-			           	        }, function() {
-			           	          //取消操作
-			           	        });
-			                })
-			              }
-			            },
-			            {
-			              text: "删除",
-			              className: 'color-danger',
-			              onClick: function() {
-			            	  var data = {"id":param}
-			            	  local.del(data).then(function(data){
-			            		  $scope.initPage();
-			            	  })
-			              }
-			            }
-			          ]
-			        });
-		     }
 		     $scope.toBindExplain = function(name,id){
 		            location.href="/sp/mobile/Skip/toBindExplain?params="+name+"&id="+id;
 		     }
@@ -250,7 +191,7 @@ angular.module('app', ['ngTouch','ionic'])
 <div class="main">
 	<div class="content" id="scroller" ng-show="lists.length!=0" >
 			<div class="weui_cells" >
-		     <div class="weui_cell"  ng-repeat="toilet in lists" on-hold="onHold('{{toilet.id}}')">
+		     <div class="weui_cell"  ng-repeat="toilet in lists" >
 			     <div class="weui_cell_bd weui_cell_primary" ng-if="toilet.status==1||toilet.status==2||toilet.status==3||toilet.status==4" ng-click="agentRemoteInfo('{{toilet.toiletName}}')">
 			         <p class="f-blue" style="font-size:18px;">{{toilet.toiletName}}</p>
 			     </div>

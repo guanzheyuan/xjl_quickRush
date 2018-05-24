@@ -87,11 +87,13 @@ public class WxUser extends GenericModel {
 	
 	@Transient
 	public XjlScSchool xjlScSChool;
+	
 	@Transient
 	public boolean isBinding;
 	
 	@Transient
 	public boolean isAdmin;
+	
 	
 	/**
 	 * 通过微信编号得到用户信息
@@ -124,6 +126,8 @@ public class WxUser extends GenericModel {
         	if(StringUtil.isNotEmpty(xjlSchoolUser)){
         		wxUser.isAdmin = "true".equals(xjlSchoolUser.isAdmin);
         	}
+        	//判断是否绑定设备
+        	
         	return wxUser;
         }
 	}

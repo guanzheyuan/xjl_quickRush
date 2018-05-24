@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import play.db.jpa.GenericModel;
 import utils.StringUtil;
@@ -32,8 +33,6 @@ public class XjlScToiletInfo extends GenericModel {
 	@Column(name = "device_code")
 	public String deviceCode;
 	
-	@Column(name = "controller_code")
-	public String controllerCode;
 	
 	@Column(name = "sensor_code")
 	public String sensorCode;
@@ -44,15 +43,40 @@ public class XjlScToiletInfo extends GenericModel {
 	@Column(name = "liquid_code")
 	public String liquidCode;
 	
+	@Column(name = "control_code")
+	public String controlCode;
+	
+	@Column(name = "wifi_code")
+	public String wifiCode;
+	
+	@Column(name="mosq_code")
+	public String mosqCode;
+	
 	@Column(name = "STATUS")
 	public String status;
 
 	@Column(name = "CREATE_TIME")
 	public Date createTime;
 	
+	
+
+	@Transient
+	public boolean isControl;
+	@Transient
+	public boolean isSensor;
+	@Transient
+	public boolean isRadiotube;
+	@Transient
+	public boolean isLiquid;
+	@Transient
+	public boolean isWifi;
+	@Transient
+	public boolean isMosq;
+	
+	
 	public static Map query(Map<String, String> condition,
 			int pageIndex, int pageSize){
-		String sql = "select a.id,a.toilet_name,a.toilet_code,a.status,a.device_code from xjl_sc_toiletinfo a ,xjl_sc_school_toilet b where a.id = b.toilet_id and b.status='0AA' and b.school_id='"+condition.get("schoolId")+"'";
+		String sql = "select a.id,a.toilet_name,a.toilet_code,a.status,a.device_code,a.control_code,a.sensor_code,a.radiotube_code,a.liquid_code,a.wifi_code from xjl_sc_toiletinfo a ,xjl_sc_school_toilet b where a.id = b.toilet_id and b.status='0AA' and b.school_id='"+condition.get("schoolId")+"'";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<Object[]> retData = ModelUtils.queryData(pageIndex, pageSize, ret);
 		List<XjlScToiletInfo> data =  new ArrayList<XjlScToiletInfo>();
@@ -74,6 +98,21 @@ public class XjlScToiletInfo extends GenericModel {
 			if(m[4]!=null){
 				xjlScToiletInfo.deviceCode = m[4].toString();
 			}
+			if(m[5]!=null){
+				xjlScToiletInfo.isControl = true;
+			}
+			if(m[6]!=null){
+				xjlScToiletInfo.isSensor = true;
+			}
+			if(m[7]!=null){
+				xjlScToiletInfo.isRadiotube  =true;
+			}
+			if(m[8]!=null){
+				xjlScToiletInfo.isLiquid  =true;
+			}
+			if(m[9]!=null){
+				xjlScToiletInfo.isWifi  =true;
+			}
 			data.add(xjlScToiletInfo);
 		}
 		return ModelUtils.createResultMap(ret, data);
@@ -90,10 +129,31 @@ public class XjlScToiletInfo extends GenericModel {
 		Map<String, String> condition = new HashMap<String, String>();
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<XjlScToiletInfo> data = ModelUtils.queryData(1, -1, ret,XjlScToiletInfo.class);
+		XjlScToiletInfo toiletInfo = null;
 		if(data.isEmpty()){
 			return null;
+		}else{
+			toiletInfo = data.get(0);
+			if(!StringUtil.isEmpty(toiletInfo.controlCode)){
+				toiletInfo.isControl = true;
+			}
+			if(!StringUtil.isEmpty(toiletInfo.sensorCode)){
+				toiletInfo.isSensor = true;
+			}
+			if(!StringUtil.isEmpty(toiletInfo.radiotubeCode)){
+				toiletInfo.isRadiotube  =true;
+			}
+			if(!StringUtil.isEmpty(toiletInfo.liquidCode)){
+				toiletInfo.isLiquid  =true;
+			}
+			if(!StringUtil.isEmpty(toiletInfo.wifiCode)){
+				toiletInfo.isWifi  =true;
+			}
+			if(!StringUtil.isEmpty(toiletInfo.mosqCode)){
+				toiletInfo.isMosq  =true;
+			}
 		}
-		return data.get(0);
+		return toiletInfo;
 	}
 	
 	public static int modifyToilet(String toiletName,String id){
@@ -102,7 +162,9 @@ public class XjlScToiletInfo extends GenericModel {
 		return ModelUtils.executeDelete(condition, sql);
 	}
 	
-	public static int modifyToiletCode(String controllerCode,String sensorCode,String radiotubeCode,String liquidCode,String id){
+	
+	
+	public static int modifyToiletCode(String controllerCode,String sensorCode,String radiotubeCode,String liquidCode,String controlCode,String wifiCode,String mosqCode,String id){
 		String sql="update xjl_sc_toiletinfo set ";
 		if(!StringUtil.isEmpty(controllerCode)){
 			sql +=" controller_code = '"+controllerCode+"'";
@@ -115,6 +177,15 @@ public class XjlScToiletInfo extends GenericModel {
 		}
 		else if(!StringUtil.isEmpty(liquidCode)){
 			sql +=" liquid_code = '"+liquidCode+"'";
+		}
+		else if(!StringUtil.isEmpty(controlCode)){
+			sql +=" control_code = '"+controlCode+"'";
+		}
+		else if(!StringUtil.isEmpty(wifiCode)){
+			sql +=" wifi_code = '"+wifiCode+"'";
+		}
+		else if(!StringUtil.isEmpty(mosqCode)){
+			sql +=" mosq_code='"+mosqCode+"'";
 		}
 		sql +=" where id='"+id+"'";
 		Map<String, String> condition = new HashMap<String, String>();

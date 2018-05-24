@@ -41,15 +41,24 @@ angular.module('app', ['ngTouch'])
 						url:'/sp/mobile/Execute/doModifyCheck',
 						params:data
 					});
+				},
+				doCheckPushMsg:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/doCheckPushMsg',
+						params:data
+					});
 				}
 			}
 		}])
 		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue,agentRemote,$timeout){
 			$scope.checkPeding = [];
-			$scope.doCheck = function(id,status){
+			$scope.doCheck = function(id,status,wxOpenId){
 				var data = {'id':id,"status":status};
 				agentRemote.doCheck(data).then(function(response){
 					$scope.initData();
+					var data = {"wxOpenId":wxOpenId};
+					agentRemote.doCheckPushMsg(data);
 				},function(response){
 				})
 			}
@@ -77,9 +86,9 @@ angular.module('app', ['ngTouch'])
                     <h4 class="weui_media_title"><img alt="" src="/sp/public/images/rush/check_wx.png" style="width:30px;height:30px;"></h4>
                     <p class="weui_media_desc">{{check.nickName}}</p>
                     <p class="weui_media_desc" style="float:right;margin-top:-10%;">
-                    	<a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_default" ng-click="doCheck('{{check.id}}','noPass')">不通过</a>
+                    	<a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_default" ng-click="doCheck('{{check.id}}','noPass','{{check.wxOpenId}}')">不通过</a>
                         &nbsp;&nbsp;&nbsp;&nbsp;
-                        <a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_primary" ng-click="doCheck('{{check.id}}','pass')">通 过</a>
+                        <a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_primary" ng-click="doCheck('{{check.id}}','pass','{{check.wxOpenId}}')">通 过</a>
                     </p>
                 </div>
             </div>

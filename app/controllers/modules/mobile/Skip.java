@@ -5,6 +5,7 @@ import controllers.comm.SessionInfo;
 import controllers.modules.mobile.filter.MobileFilter;
 import models.modules.mobile.WxServer;
 import models.modules.mobile.WxUser;
+import models.modules.mobile.XjlScToiletInfo;
 import play.Logger;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -66,12 +67,24 @@ public class Skip extends MobileFilter {
 	 */
 	public static void toBindExplain(){
 		WxUser wxUser = getWXUser();
+		XjlScToiletInfo xjlScToiletInfo = XjlScToiletInfo.queryScToiletById(Long.valueOf(params.get("id")));
 		renderArgs.put("wxUser", wxUser);
 		renderArgs.put("toilet",params.get("params"));
 		renderArgs.put("id",params.get("id"));
-		render("modules/xjldw/rush/sc_bindExplain.html");
+		renderArgs.put("toiletInfo", xjlScToiletInfo);
+		render("modules/xjldw/rush/bind/sc_bindExplain.html");
 	}
 	
+	/**
+	 * 关联控制器
+	 */
+	public static void toBindControl(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("toilet",params.get("params"));
+		renderArgs.put("id",params.get("id"));
+		render("modules/xjldw/rush/bind/sc_bindControl.html");
+	}
 	/**
 	 * 关联传感器
 	 */
@@ -80,7 +93,7 @@ public class Skip extends MobileFilter {
 		renderArgs.put("wxUser", wxUser);
 		renderArgs.put("toilet",params.get("params"));
 		renderArgs.put("id",params.get("id"));
-		render("modules/xjldw/rush/sc_bindSensor.html");
+		render("modules/xjldw/rush/bind/sc_bindSensor.html");
 	}
 	
 	/**
@@ -91,7 +104,7 @@ public class Skip extends MobileFilter {
 		renderArgs.put("wxUser", wxUser);
 		renderArgs.put("toilet",params.get("params"));
 		renderArgs.put("id",params.get("id"));
-		render("modules/xjldw/rush/sc_bindRadiotube.html");
+		render("modules/xjldw/rush/bind/sc_bindRadiotube.html");
 	}
 	
 	/**
@@ -102,7 +115,29 @@ public class Skip extends MobileFilter {
 		renderArgs.put("wxUser", wxUser);
 		renderArgs.put("toilet",params.get("params"));
 		renderArgs.put("id",params.get("id"));
-		render("modules/xjldw/rush/sc_bindLiquid.html");
+		render("modules/xjldw/rush/bind/sc_bindLiquid.html");
+	}
+	
+	/**
+	 * 关联wifi
+	 */
+	public static void toWifi(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("toilet",params.get("params"));
+		renderArgs.put("id",params.get("id"));
+		render("modules/xjldw/rush/bind/sc_bindWifi.html");
+	}
+	
+	/**
+	 * 驱蚊除味
+	 */
+	public static void toMosq(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("toilet",params.get("params"));
+		renderArgs.put("id",params.get("id"));
+		render("modules/xjldw/rush/bind/sc_bindMosq.html");
 	}
 	
 	/**

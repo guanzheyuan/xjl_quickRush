@@ -53,6 +53,7 @@ import utils.CreateQRCode;
 import utils.DateUtil;
 import utils.FileUtil;
 import utils.HttpClientUtil;
+import utils.MsgPush;
 import utils.Preview;
 import utils.StringUtil;
 import utils.WechatTicket;
@@ -92,9 +93,13 @@ public class Execute  extends MobileFilter {
 		String startTime = params.get("startTime");
 		String endTime = params.get("endTime");
 		String interval = params.get("interval");
+		String leaveRush = params.get("leaveRush");
+		String configStatus = params.get("configStatus");
 		XjlScConfig xjlScConfig = new XjlScConfig();
 		xjlScConfig.timeQuantum = startTime.replace("：",":").replace(" ", "")+" — "+endTime.replace("：",":").replace(" ", "");
 		xjlScConfig.interval = interval;
+		xjlScConfig.leaveRush = leaveRush;
+		xjlScConfig.configStatus = configStatus;
 		XjlScConfigBo.save(xjlScConfig);
 	}
 	
@@ -122,6 +127,15 @@ public class Execute  extends MobileFilter {
 	public static void queryScConfigNotinterval(){
 		Map<String,String> condition = new HashMap<>();
 		Map map = XjlScConfig.queryNotTime(condition, 1, 1000000);
+		ok(map);
+	}
+	
+	/**
+	 * 查询驱蚊配置
+	 */
+	public static void queryScMosq(){
+		Map<String,String> condition = new HashMap<>();
+		Map map = XjlScConfig.queryMosq(condition, 1, 1000000);
 		ok(map);
 	}
 	
@@ -184,6 +198,14 @@ public class Execute  extends MobileFilter {
 	}
 	
 	/**
+	 * 配置离开冲水
+	 */
+	public static void modifyLeaveRush(){
+		String leaveRush = params.get("leaveRush");
+		XjlScConfig.modifyLeaveRush(leaveRush);
+	}
+	
+	/**
 	 * 查询卫生间
 	 */
 	public static void querytoilet(){
@@ -191,7 +213,7 @@ public class Execute  extends MobileFilter {
 		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
 		WxUser wxUser = getWXUser();
 		Map<String,String> condition = new HashMap<>();
-		condition.put("schoolId",String.valueOf(wxUser.schoolId));
+		condition.put("schoolId",String.valueOf(wxUser.xjlScSChool.schoolId));
 		Map ret = XjlScToiletInfo.query(condition, pageIndex, pageSize);
 		ok(ret);
 	}
@@ -246,8 +268,11 @@ public class Execute  extends MobileFilter {
 		String sensorCode = params.get("sensorCode");
 		String radiotubeCode = params.get("radiotubeCode");
 		String liquidCode = params.get("liquidCode");
+		String controlCode = params.get("controlCode");
+		String wifiCode = params.get("wifiCode");
+		String mosqCode = params.get("mosqCode");
 		String id = params.get("id");
-		int ret = XjlScToiletInfo.modifyToiletCode(controllerCode, sensorCode, radiotubeCode, liquidCode, id);
+		int ret = XjlScToiletInfo.modifyToiletCode(controllerCode, sensorCode, radiotubeCode, liquidCode,controlCode,wifiCode,mosqCode, id);
 		ok(ret);
 	}
 	
@@ -287,7 +312,9 @@ public class Execute  extends MobileFilter {
 	public static void queryCheckPending(){
 		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
 		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		WxUser wxUser = getWXUser();
 		Map<String,String> condition = new HashMap<>();
+		condition.put("schoolId",String.valueOf(wxUser.xjlScSChool.schoolId));
 		List<XjlScSchoolUser> data = XjlScSchoolUser.queryCheckPending(condition, pageIndex, pageSize);
 		ok(data);
 	}
@@ -301,6 +328,35 @@ public class Execute  extends MobileFilter {
 		String _status = "pass".equals(status)?"0AA":"0XX";
 		int ret = XjlScSchoolUser.modifyCheck(id,_status);
 		ok(ret);
+	}
+	
+	/**
+	 * 审核通过消息推送
+	 */
+	public static void doCheckPushMsg(){
+		 String wxOpenId = params.get("wxOpenId");
+		 WxUser wxUser = WxUser.getFindByOpenId(wxOpenId);
+		 Map<String, Object> mapData = new HashMap<String, Object>();
+		 Map<String, Object> mapDataSon = new HashMap<String, Object>();
+		 mapDataSon.put("value", "学校绑定已经通过审核");
+		 mapDataSon.put("color", "#68A8C3");
+		 mapData.put("first", mapDataSon);
+		 mapDataSon = new HashMap<String, Object>();
+		 mapDataSon.put("value",UUID.randomUUID().toString().substring(0, 10));
+		 mapData.put("keyword1", mapDataSon);
+		 mapDataSon = new HashMap<String, Object>();
+		 mapDataSon.put("value",wxUser.nickName);
+		 mapData.put("keyword2", mapDataSon);
+		 mapDataSon = new HashMap<String, Object>();
+		 mapDataSon.put("value", "2013-01-1");
+		 mapDataSon.put("color","#808080");
+		 mapData.put("keyword3", mapDataSon);
+		 mapDataSon = new HashMap<String, Object>();
+		 mapDataSon.put("value", "感谢您的使用");
+		 mapDataSon.put("color","#808080");
+		 mapData.put("remark", mapDataSon);
+		 String url="";
+		 MsgPush.wxMsgPusheTmplate("IztPNos-0Hp7-SVdpclYQy25OwIeazJvn9TLzAgTL7A", url, mapData,wxUser.wxOpenId);
 	}
 	
 }

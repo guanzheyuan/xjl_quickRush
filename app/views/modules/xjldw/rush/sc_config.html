@@ -21,14 +21,16 @@
 <!--  -->
 <script src="/sp/public/js/jquery-1.9.1.min.js"></script>
 <script src="/sp/public/weui/js/jquery-weui.js"></script>
+<script src="https://cdn.bootcss.com/ionic/1.3.2/js/ionic.bundle.min.js"></script>
 <script src="/sp/public/widgets/zeptojs/zepto.min.js"></script>
 <script src="/sp/public/widgets/dropload/dropload.min.js"></script>
-<script src="/sp/public/widgets/angularjs/angular.min.js"></script>
+<!-- <script src="/sp/public/widgets/angularjs/angular.min.js"></script> -->
 <script src="/sp/public/widgets/angularjs/angular-touch.min.js"></script>
 <script src="/sp/public/js/zepto.min.js"></script>
 <script src="/sp/public/widgets/picker/js/picker.js"></script>
+
 <script type="text/javascript">
-angular.module('app', ['ngTouch'])
+angular.module('app', ['ngTouch','ionic'])
 	.value('appValue', {
 	    index: 1,
 	    size: 10
@@ -108,6 +110,50 @@ angular.module('app', ['ngTouch'])
 					url:'/sp/mobile/Execute/saveToilet',
 					params:data
 				})
+			},
+			queryToilet:function(index, size){
+				return $http({
+					method:'post',
+					url:'/sp/mobile/Execute/querytoilet',
+					params: {
+                         PAGE_INDEX: index || appValue.index,
+                         PAGE_SIZE: size || appValue.size
+                     }
+				});
+			},
+			del:function(data){
+				return $http({
+					method:'post',
+					url:'/sp/mobile/Execute/delToilet',
+					params:data
+				});
+			},
+			queryById:function(data){
+				return $http({
+					method:'post',
+					url:'/sp/mobile/Execute/queryToiletById',
+					params:data
+				});
+			},
+			modifyToilet:function(data){
+				return $http({
+					method:'post',
+					url:'/sp/mobile/Execute/modifyToilet',
+					params:data
+				});
+			},
+			modifyLeaveRush:function(data){
+				return $http({
+					method:'post',
+					url:'/sp/mobile/Execute/modifyLeaveRush',
+					params:data
+				});
+			},
+			queryMosq:function(){
+				return $http({
+					method:'post',
+					url:'/sp/mobile/Execute/queryScMosq'
+				});
 			}
 		}
 	}])
@@ -116,6 +162,8 @@ angular.module('app', ['ngTouch'])
 	 $scope.timeQuanTumNotInterval = [];//未设置时段列表
 	 $scope.timeQuanTumId = [];//感应时段id 集合
 	 $scope.timeInterval = [];//配置冲水间隔
+	 $scope.redactToilet = [];
+	 $scope.mosqList = [];//驱蚊时间配置
 	 $scope.id = '';
 	 $scope.clickAction = function(param,flag){
 		  $.actions({
@@ -139,12 +187,18 @@ angular.module('app', ['ngTouch'])
 	                		$("#half_update").popup('open');
 	 	                	$("#start_update").val(res.split(' — ')[0].replace(':',' ：'));
 	 	                	$("#end_update").val(res.split(' — ')[1].replace(':',' ：'));
-	 	                }else{
+	 	                }
+	                	if('2' == flag){
 	 	                	$("#time_min_update").popup('open');
 	 	                	$("#start_min_update").val(res.split(' — ')[0].replace(':',' ：'));
 	 	                	$("#end_min_update").val(res.split(' — ')[1].replace(':',' ：'));
 	 	                	$("#minute_update").val(response.data.data.interval);
 	 	                }
+	                	if('3' == flag){
+	                		$("#mosq_update").popup('open');
+	 	                	$("#start_mosq_update").val(res.split(' — ')[0].replace(':',' ：'));
+	 	                	$("#end_mosq_update").val(res.split(' — ')[1].replace(':',' ：'));
+	                	}
 	                },function(response){
 	                })
 	                
@@ -160,20 +214,80 @@ angular.module('app', ['ngTouch'])
 	                var data = {"id":param};
 	                if('1' == flag){
 	 	                agentRemote.modifyStatus(data).then(function(response){
-	 	                	 location.reload();
+	 	                	 $scope.queryConfig();
 	 	                },function(response){
 	 	                })
-	                }else{
+	                }
+	                if('2'==flag){
 	                	agentRemote.modifyIntervalIsNull(data).then(function(response){
-	                		 location.reload();
+	                		 $scope.queryInterval();
 	                	},function(response){
 	                	})
+	                }
+	                if('3' == flag){
+	                	agentRemote.modifyStatus(data).then(function(response){
+	                		 $scope.queryMosq();
+	 	                },function(response){
+	 	                })
 	                }
 	              }
 	            }
 	          ]
 	        });
 		}
+
+	 $scope.onHold = function(param){
+    	 $.actions({
+	          title: "选择操作",
+	          onClose: function() {
+	            console.log("close");
+	          },
+	          actions: [
+	            {
+	              text: "编辑",
+	              className: "color-warning",
+	              onClick: function() {
+	            	  var data = {"id":param}
+	            	  agentRemote.queryById(data).then(function(data){
+	                	console.log(data.data.data.toiletName);
+	                	$.prompt("修改卫生间", data.data.data.toiletName, function(text) {
+	           			 var data = {"toiletName":text,"id":param};
+	           			agentRemote.modifyToilet(data).then(function(data){
+	           				$scope.queryToilet()
+	           	          })
+	           	        }, function() {
+	           	          //取消操作
+	           	        });
+	                })
+	              }
+	            },
+	            {
+	              text: "删除",
+	              className: 'color-danger',
+	              onClick: function() {
+	            	  var data = {"id":param}
+	            	  agentRemote.del(data).then(function(data){
+	            		  $scope.queryToilet()
+	            	  })
+	              }
+	            }
+	          ]
+	        });
+     }
+	 $scope.grade;
+	 $scope.modifyLeaveRush = function(){
+		 var data = {"leaveRush":$scope.grade};
+		 agentRemote.modifyLeaveRush(data).then(function(response){
+		 },function(response){
+		 })
+	 }
+	 $scope.queryToilet = function(){
+		 agentRemote.queryToilet().then(function(response){
+			 console.log(response);
+			 $scope.redactToilet = response.data.data.data;
+		 },function(response){
+		 })
+	 }
 	 $scope.queryNotInterval = function(){
 		 agentRemote.queryConfigNotinterval().then(function(response){
 			 var arr_quan = [];
@@ -208,40 +322,6 @@ angular.module('app', ['ngTouch'])
 			          }
 			        ]
 			 });
-		 },function(response){
-		 })
-	 }
-	 
-	 $scope.refresh = function(){
-		 agentRemote.queryConfigNotinterval().then(function(response){
-			 var arr_quan = [];
-			 var arr_id = [];
-			if(response.data.data.data.length > 0){
-				for(var i = 0;i<response.data.data.data.length;i++){
-					arr_quan.push(response.data.data.data[i].timeQuantum);
-					arr_id.push(response.data.data.data[i].id);
-				}
-			}
-			$("#_timeQuanTum").picker({
-			        title: "选择感应时间段",
-			        toolbarCloseText:'确定',
-			        cols: [
-			          {
-			            textAlign: 'center',
-			            values: arr_quan
-			          }
-			        ]
-			 });
-			$("#_timeQuanTum_update").picker({
-		        title: "选择感应时间段",
-		        toolbarCloseText:'确定',
-		        cols: [
-		          {
-		            textAlign: 'center',
-		            values: arr_quan
-		          }
-		        ]
-		 });
 		 },function(response){
 		 })
 	 }
@@ -280,6 +360,46 @@ angular.module('app', ['ngTouch'])
 		        ]}); 
 	 }
 	 $scope.timePicker = function(){
+		 $("#start_mosq").picker({title:"选择时间",
+		        cols: [
+		          {
+		            textAlign: 'center',
+		            values: (function () {
+		                var arr = [];
+		                for (var i = 0; i <= 23; i++) { arr.push(i < 10 ? '0' + i : i); }
+		                return arr;
+		            })()
+		            
+		          },
+		          {
+		            textAlign: 'center',
+		            values:  (function () {
+		                var arr = [];
+		                arr.push('：00');
+		                return arr;
+		            })(),
+		          }
+		        ]});
+		 $("#start_mosq_update").picker({title:"选择时间",
+		        cols: [
+		          {
+		            textAlign: 'center',
+		            values: (function () {
+		                var arr = [];
+		                for (var i = 0; i <= 23; i++) { arr.push(i < 10 ? '0' + i : i); }
+		                return arr;
+		            })()
+		            
+		          },
+		          {
+		            textAlign: 'center',
+		            values:  (function () {
+		                var arr = [];
+		                arr.push('：00');
+		                return arr;
+		            })(),
+		          }
+		        ]}); 
 		 $("#start_min_update").picker({title:"选择时间",
 		        cols: [
 		          {
@@ -440,10 +560,60 @@ angular.module('app', ['ngTouch'])
 		            })(),
 		          }
 		        ]}); 
+		 $("#end_mosq_update").picker({title:"选择时间",
+		        cols: [
+		          {
+		            textAlign: 'center',
+		            values: (function () {
+		                var arr = [];
+		                for (var i = 0; i <= 23; i++) { arr.push(i < 10 ? '0' + i : i); }
+		                return arr;
+		            })()
+		            
+		          },
+		          {
+		            textAlign: 'center',
+		            values:  (function () {
+		                var arr = [];
+		                arr.push('：00');
+		                return arr;
+		            })(),
+		          }
+		        ]}); 
+		 $("#end_mosq").picker({title:"选择时间",
+		        cols: [
+		          {
+		            textAlign: 'center',
+		            values: (function () {
+		                var arr = [];
+		                for (var i = 0; i <= 23; i++) { arr.push(i < 10 ? '0' + i : i); }
+		                return arr;
+		            })()
+		            
+		          },
+		          {
+		            textAlign: 'center',
+		            values:  (function () {
+		                var arr = [];
+		                arr.push('：00');
+		                return arr;
+		            })(),
+		          }
+		        ]});
+	 }
+	 //驱蚊配置
+	 $scope.queryMosq = function(){
+		 agentRemote.queryMosq().then(function(response){
+			 $scope.mosqList = response.data.data.data;
+		 },function(response){
+		 })
 	 }
 	 $scope.queryConfig = function(){
 		 agentRemote.queryConfig().then(function(response){
 			 $scope.timeQuanTumList = response.data.data.data;
+			 if($scope.timeQuanTumList.length > 0){
+				 $scope.grade = $scope.timeQuanTumList[0].leaveRush == 'true';
+			 }
 		 },function(response){
 		 })
 	 }
@@ -453,6 +623,25 @@ angular.module('app', ['ngTouch'])
 		 },function(response){
 		 })
 	 }
+	 $scope.modifyMosqById = function(){
+		 if($("#start_mosq_update").val() == ''){
+				$.toptips('开始时间不能为空','warning');return;
+		 }
+		 if($("#end_mosq_update").val() == ''){
+				$.toptips('结束时间不能为空','warning');return;
+		 }
+		 var start_time = $("#start_mosq_update").val().split('：')[0];
+		 var end_time = $("#end_mosq_update").val().split('：')[0];
+		 if(parseInt(start_time) > parseInt(end_time)){
+				$.toptips('开始时间不能大于结束时间','warning');return;
+		 }
+		 var data = {"id":$scope.id,"timeQuanTum":$("#start_mosq_update").val()+'-'+$("#end_mosq_update").val()};
+		 agentRemote.modifyTimeQuanTumById(data).then(function(response){
+			 location.reload();
+		 },function(response){
+		 })
+	 }
+	 
 	 $scope.modifyIntervalById = function(){
 		 if($("#start_min_update").val() == ''){
 				$.toptips('开始时间不能为空','warning');return;
@@ -475,6 +664,7 @@ angular.module('app', ['ngTouch'])
 			 
 		 })
 	 }
+	 
 	 $scope.modifyQuanTumConfig = function(){
 		 if($("#start_update").val() == ''){
 				$.toptips('开始时间不能为空','warning');return;
@@ -510,11 +700,31 @@ angular.module('app', ['ngTouch'])
 		 if(parseInt(start_time) > parseInt(end_time)){
 				$.toptips('开始时间不能大于结束时间','warning');return;
 		 }
-		var data ={"startTime":$("#start_min").val(),"endTime":$("#end_min").val(),"interval":$("#minute").val()};
+		var data ={"startTime":$("#start_min").val(),"endTime":$("#end_min").val(),"interval":$("#minute").val(),"configStatus":'2'};
 		agentRemote.getData(data).then(function(response){
 			location.reload();
 		},function(response){
 		})
+	 }
+	 
+	 //驱蚊时间新增
+	 $scope.mosqTumConfig = function(){
+		 if($("#start_mosq").val() == ''){
+				$.toptips('开始时间不能为空','warning');return;
+		 }
+		 if($("#end_mosq").val() == ''){
+			$.toptips('结束时间不能为空','warning');return;
+		 }
+		 var start_time = $("#start_mosq").val().split('：')[0];
+		 var end_time = $("#end_mosq").val().split('：')[0];
+		 if(parseInt(start_time) > parseInt(end_time)){
+				$.toptips('开始时间不能大于结束时间','warning');return;
+		 }
+		 var data ={"startTime":$("#start_mosq").val(),"endTime":$("#end_mosq").val(),"configStatus":"3"};
+		 agentRemote.getData(data).then(function(response){
+			 location.reload();
+		 },function(response){
+		 })
 	 }
 	 //配置冲水时间段
 	 $scope.timeQuanTumConfig = function(flag){
@@ -529,48 +739,63 @@ angular.module('app', ['ngTouch'])
 		if(parseInt(start_time) > parseInt(end_time)){
 			$.toptips('开始时间不能大于结束时间','warning');return;
 		}
-		var data ={"startTime":$("#start").val(),"endTime":$("#end").val()};
+		var data ={"startTime":$("#start").val(),"endTime":$("#end").val(),"leaveRush":$scope.grade,"configStatus":'1'};
 		agentRemote.getData(data).then(function(response){
-			 location.reload();
+			location.reload();
 		},function(response){
 		})
-	 }
-	 $scope.selectQuanTime = function(){
-		 if($("#_timeQuanTum").val() == ''){
-			 $.toptips('时间段不能为空','warning');return;
-		 }
-		 if($("#minute").val() == ''){
-			 $.toptips('时间间隔不能为空','warning');return;
-		 }
-		 var data = {"timeQuantum":$("#_timeQuanTum").val(),"interval":$("#minute").val()};
-		 agentRemote.modifyInterval(data).then(function(response){
-			 location.reload();
-		 },function(response){
-		 });
 	 }
 	 $scope.add = function(){
 		 $.prompt("新建卫生间", "", function(text) {
 			 var data = {"toiletName":text};
 	          agentRemote.saveToilet(data).then(function(response){
 	        	  $.toast("操作成功");
+	        	  $scope.queryToilet()
 	          },function(response){
 	          })
 	        }, function() {
 	          //取消操作
 	        });
 	 }
+	 $scope.toBindExplain = function(name,id){
+         location.href="/sp/mobile/Skip/toBindExplain?params="+name+"&id="+id;
+     }
+	 $scope.queryMosq();
 	 $scope.queryConfig();
+	 $scope.queryToilet();
 	 $scope.timePicker();
 	 $scope.timeMinute();
 	 $scope.queryInterval();
-	 $scope.refresh();
 	}]);
 </script>
 </head>
 <body ng-cloak ng-controller="MainController" ontouchstart style="background-color: #f8f8f8;">
 <div class="weui_cells_title" style="margin:15px;">
-<div>冲水设置规则</div>
-<div style="float:right;margin-top:-8%;" ng-click="add()"><img  alt="" src="/sp/public/images/rush/add.png" width="30" height="30"></div>
+<div>卫生间维护(单击绑定设备/长按维护信息)</div>
+</div>
+<div class="weui_cells">
+	<div class="weui_cell">
+	      <div class="weui_cell_bd weui_cell_primary">
+	          <p>卫生间维护</p>
+	      </div>
+	      <div class="weui_cell_ft">
+	      	<a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_primary " ng-click="add()"  >新增</a>
+	      </div>
+	 </div>
+	<div class="weui_cell" ng-repeat="toilet in redactToilet" on-hold="onHold('{{toilet.id}}')">
+		<div class="weui_cell_bd weui_cell_primary" >
+	         <p  style="font-size:18px;">{{toilet.toiletName}}</p>
+	     </div>
+	     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 1"><span class='f-green'>运行</span></div>
+	     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 2"><span class='f-gray'>冲水</span></div>
+	     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 3"><span class='f-red'>异常</span></div>
+	     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 4"><span class='f-red'>离线</span></div>
+	     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 5" ng-click="toBindExplain('{{toilet.toiletName}}','{{toilet.id}}')"  ><span class='f-red'>尚未关联设备</span></div>
+	</div>
+</div>
+<!--  -->
+<div class="weui_cells_title" style="margin:15px;">
+<div>冲水规则维护</div>
 </div>
 <div class="weui_cells">         
   <div class="weui_cell">
@@ -581,14 +806,23 @@ angular.module('app', ['ngTouch'])
       	<a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_primary  open-popup" data-target="#half"  >新增</a>
       </div>
   </div> 
+  <div class="weui_cell weui_cell_switch">
+		 <div class="weui_cell_hd weui_cell_primary">离开冲水</div>
+		 <div class="weui_cell_ft">
+		     <input class="weui_switch" type="checkbox" ng-change="modifyLeaveRush()" ng-model="grade"/>
+		 </div>
+	</div>
   <div class="weui_cell " ng-click="clickAction('{{quanTum.id}}','1')" ng-repeat="quanTum in timeQuanTumList">
       <div class="weui_cell_bd weui_cell_primary">
           <p>{{quanTum.timeQuantum}}</p>
       </div>
   </div>
 </div>   
-
-<div class="weui_cells">  
+<!--  -->
+<div class="weui_cells_title" >
+<div>冲水间隔设置</div>
+</div>
+<div class="weui_cells" >  
  <div class="weui_cell">
       <div class="weui_cell_bd weui_cell_primary">
           <p>2.冲水间隔设置</p>
@@ -603,6 +837,25 @@ angular.module('app', ['ngTouch'])
       </div>
   </div>
 </div>
+ <!--  -->
+<div class="weui_cells_title" >
+<div>驱蚊时间设置</div>
+</div>
+<div class="weui_cells" style="margin-bottom:20px;">         
+  <div class="weui_cell">
+      <div class="weui_cell_bd weui_cell_primary">
+          <p>3.驱蚊时段设置</p>
+      </div>
+      <div class="weui_cell_ft">
+      	<a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_primary  open-popup" data-target="#mosq"  >新增</a>
+      </div>
+  </div> 
+  <div class="weui_cell " ng-click="clickAction('{{mosq.id}}','3')" ng-repeat="mosq in mosqList">
+      <div class="weui_cell_bd weui_cell_primary">
+          <p>{{mosq.timeQuantum}}</p>
+      </div>
+  </div>
+</div>  
 <!-- 间隔日期 add -->
  <div id="half" class='weui-popup__container popup-bottom'>
       <div class="weui-popup__overlay"></div>
@@ -676,12 +929,6 @@ angular.module('app', ['ngTouch'])
         <div class="modal-content">
           <div class="weui-grids">
           	<div class="weui_cells weui_cells_form ">   
-		           <!-- <div class="weui_cell">
-		                <div class="weui_cell_hd"><label for="" class="weui_label">感应时间段:</label></div>
-		                <div class="weui_cell_bd weui_cell_primary">
-		                    <input class="weui_input" type="text" value="" id='_timeQuanTum'/>
-		                </div>
-	               </div>  -->
 	               <div class="weui-cell">
 				        <div class="weui-cell__hd"><label for="time" class="">开始时间：</label></div>
 				        <div class="weui-cell__bd">
@@ -740,6 +987,66 @@ angular.module('app', ['ngTouch'])
 				        <div class="weui-cell__hd"><label for="time" class="">间隔时间：</label></div>
 				        <div class="weui-cell__bd">
 				          <input class="weui-input" id="minute_update" type="text" value="">
+				        </div>
+			       </div>
+ 			</div>
+          </div>
+        </div>
+      </div>
+</div>
+<!-- 驱蚊 add -->
+<div id="mosq" class='weui-popup__container popup-bottom'>
+      <div class="weui-popup__overlay"></div>
+      <div class="weui-popup__modal">
+        <div class="toolbar">
+          <div class="toolbar-inner">
+            <a href="javascript:;" class="picker-button close-popup" ng-click="mosqTumConfig()">确定</a>
+            <h1 class="title">设置时段</h1>
+          </div>
+        </div>
+        <div class="modal-content">
+          <div class="weui-grids">
+          	<div class="weui_cells weui_cells_form ">   
+		           <div class="weui-cell">
+				        <div class="weui-cell__hd"><label for="time" class="">开始时间：</label></div>
+				        <div class="weui-cell__bd">
+				          <input class="weui-input" id="start_mosq" type="text" value="">
+				        </div>
+			       </div>
+			       <div class="weui-cell">
+				        <div class="weui-cell__hd"><label for="time" class="">结束时间：</label></div>
+				        <div class="weui-cell__bd">
+				          <input class="weui-input" id="end_mosq" type="text" value="">
+				        </div>
+			       </div>
+ 			</div>
+          </div>
+        </div>
+      </div>
+</div> 
+<!-- 驱蚊update -->
+<div id="mosq_update" class='weui-popup__container popup-bottom'>
+      <div class="weui-popup__overlay"></div>
+      <div class="weui-popup__modal">
+        <div class="toolbar">
+          <div class="toolbar-inner">
+            <a href="javascript:;" class="picker-button close-popup" ng-click="modifyMosqById()">修改</a>
+            <h1 class="title">设置时段</h1>
+          </div>
+        </div>
+        <div class="modal-content">
+          <div class="weui-grids">
+          	<div class="weui_cells weui_cells_form ">   
+	               <div class="weui-cell">
+				        <div class="weui-cell__hd"><label for="time" class="">开始时间：</label></div>
+				        <div class="weui-cell__bd">
+				          <input class="weui-input" id="start_mosq_update" type="text" value="">
+				        </div>
+			       </div>
+			       <div class="weui-cell">
+				        <div class="weui-cell__hd"><label for="time" class="">结束时间：</label></div>
+				        <div class="weui-cell__bd">
+				          <input class="weui-input" id="end_mosq_update" type="text" value="">
 				        </div>
 			       </div>
  			</div>

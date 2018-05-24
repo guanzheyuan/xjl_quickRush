@@ -75,7 +75,7 @@ public class XjlScSchoolUser extends GenericModel {
 	
 	public static List<XjlScSchoolUser> queryCheckPending(Map<String, String> condition,
 			int pageIndex, int pageSize){
-		String sql="select b.nick_name,b.wx_open_id,a.id from xjl_sc_school_user a,wx_user b where a.wx_open_id=b.wx_open_id and a.status='0UU' order by a.create_time desc";
+		String sql="select b.nick_name,b.wx_open_id,a.id from xjl_sc_school_user a,wx_user b where a.wx_open_id=b.wx_open_id and a.status='0UU' and a.school_id='"+condition.get("schoolId")+"' order by a.create_time desc";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<Object[]> retData = ModelUtils.queryData(pageIndex, pageSize, ret);
 		List<XjlScSchoolUser> data  = new ArrayList<>();

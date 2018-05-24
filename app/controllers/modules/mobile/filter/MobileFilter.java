@@ -257,7 +257,7 @@ public class MobileFilter extends BaseController{
 			if(wxUser!=null){
 				Logger.info("缓存用户信息不为空:"+wxUser.wxOpenId+":"+wxUser.isBinding);
 			}
-			render("modules/xjldw/rush/sc_welcome.html");
+			render("modules/xjldw/rush/sc_bindSchool.html");
 		} else {
 			if(!"PC".equals(sessionInfo.getDeviceFlag())){
 				log.debug("当前登录设备不是pc，是:" + sessionInfo.getDeviceFlag());
