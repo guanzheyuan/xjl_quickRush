@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<title>生成二维码</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<link rel="stylesheet" href="/sp/public/weui/css/weui.css">
+<link rel="stylesheet" href="/sp/public/weui/css/weui2.css"/>
+<link rel="stylesheet" href="/sp/public/weui/css/weui3.css"/>
+<script src="/sp/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/sp/public/widgets/dropload/dropload.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular.min.js"></script>
+<script src="/sp/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/sp/public/js/zepto.min.js"></script>
+<script type="text/javascript">
+angular.module('app', ['ngTouch'])
+		.value('appValue', {
+		    index: 1,
+		    size: 10
+		})
+		.factory('agentRemote',['$http','appValue',function($http, appValue){
+			return {
+				doQRCode:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/doQRCode',
+						params:data
+					});
+				}
+			}
+		}])
+		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue,agentRemote,$timeout){
+			
+			//生成二维码
+			$scope.doPrintQRcode = function(){
+				if($("#qrcode").val() == ""){
+					$.toptips('请填写设备编号！','warning');return;
+				}
+				var data={"qrcode":$("#qrcode").val(),"id":'${id}','type':'${type}'}
+				agentRemote.doQRCode(data).then(function(response){
+					$("#qrpath").attr('src','../../../sp'+response.data.data);
+					$("#showQr").show();
+				},function(response){
+				})
+			}
+			$("#showQr").hide();
+		}]);
+</script>
+</head>
+<body ng-cloak ng-controller="MainController" ontouchstart style="background-color: #f8f8f8;">
+<div style="margin:9px;">
+	 	<h1 class="page-hd-title">
+            【 ${name} 】二维码生成
+        </h1>
+        <p class="page-hd-desc">请输入编号生成对应二维码！</p>
+</div>
+<div class="weui_cell" style="margin-top:10%;">
+      <div class="weui_cell_hd"><label class="weui_label">设备编号:</label></div>
+      <div class="weui_cell_bd weui_cell_primary">
+          <input class="weui_input" type="text" id="qrcode"   placeholder="请输入设备编号"/>
+      </div>
+</div>
+<div class="page-bd-15" style="margin-top:10%">
+	 <a href="javascript:;" class="weui_btn weui_btn_primary" ng-click="doPrintQRcode()">生成二维码</a>
+</div>
+<div id="showQr">
+	<img id="qrpath" src="" class="img-border img-max" style="width:100%;height:100%;">
+</div>
+
+
+
+</body>
+</html>

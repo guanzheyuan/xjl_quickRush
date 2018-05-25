@@ -31,6 +31,7 @@ import com.mysql.jdbc.log.Log;
 import controllers.comm.SessionInfo;
 import controllers.modules.mobile.bo.WxUserBo;
 import controllers.modules.mobile.bo.XjlScConfigBo;
+import controllers.modules.mobile.bo.XjlScDeviceManageBo;
 import controllers.modules.mobile.bo.XjlScLogBo;
 import controllers.modules.mobile.bo.XjlScSchoolToiletBo;
 import controllers.modules.mobile.bo.XjlScToiletInfoBo;
@@ -38,6 +39,7 @@ import controllers.modules.mobile.filter.MobileFilter;
 import models.modules.mobile.WxServer;
 import models.modules.mobile.WxUser;
 import models.modules.mobile.XjlScConfig;
+import models.modules.mobile.XjlScDeviceManage;
 import models.modules.mobile.XjlScLog;
 import models.modules.mobile.XjlScSchool;
 import models.modules.mobile.XjlScSchoolToilet;
@@ -51,10 +53,12 @@ import play.cache.Cache;
 import utils.CreateHtml;
 import utils.CreateQRCode;
 import utils.DateUtil;
+import utils.FileUploadPathUtil;
 import utils.FileUtil;
 import utils.HttpClientUtil;
 import utils.MsgPush;
 import utils.Preview;
+import utils.QRCode;
 import utils.StringUtil;
 import utils.WechatTicket;
 import utils.WxPushMsg;
@@ -358,5 +362,92 @@ public class Execute  extends MobileFilter {
 		 String url="";
 		 MsgPush.wxMsgPusheTmplate("IztPNos-0Hp7-SVdpclYQy25OwIeazJvn9TLzAgTL7A", url, mapData,wxUser.wxOpenId);
 	}
+	
+	/**
+	 * 保存设别
+	 */
+	public static void saveDevice(){
+		String businessStatus = params.get("businessStatus");
+		String deviceStatus = params.get("deviceStatus");
+		String name = params.get("name");
+		WxUser wxUser = getWXUser();
+		XjlScDeviceManage xjlScDeviceManage = new XjlScDeviceManage();
+		xjlScDeviceManage.name = name;
+		xjlScDeviceManage.businessStatus = businessStatus;
+		xjlScDeviceManage.deviceStatus = deviceStatus;
+		xjlScDeviceManage.wxOpenId = wxUser.wxOpenId;
+		xjlScDeviceManage = XjlScDeviceManageBo.save(xjlScDeviceManage);
+		ok(xjlScDeviceManage);
+	}
+	/**
+	 * 查询设备号
+	 */
+	public static void queryDevice(){
+		String businessStatus = params.get("businessStatus");
+		String deviceStatus = params.get("deviceStatus");
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Map<String,String> condition = new HashMap<>();
+		condition.put("businessStatus",businessStatus);
+		condition.put("deviceStatus",deviceStatus);
+		Map ret = XjlScDeviceManage.query(condition, pageIndex, pageSize);
+		ok(ret);
+	}
+	
+	/**
+	 * 通过主键获取信息
+	 */
+	public static void queryDeviceById(){
+		String id = params.get("id");
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Map<String,String> condition = new HashMap<>();
+		condition.put("id", id);
+		XjlScDeviceManage deviceManage = XjlScDeviceManage.queryById(condition, pageIndex, pageSize);
+		ok(deviceManage);
+	}
+	
+	/**
+	 * 修改设备名称
+	 */
+	public static void modifyDevice(){
+		String id = params.get("id");
+		String name = params.get("name");
+		int ret = XjlScDeviceManage.modifyDevice(name, id);
+		ok(ret);
+	}
+	
+	/**
+	 * 逻辑删除
+	 */
+	public static void modifyDeviceStatus(){
+		String id = params.get("id");
+		int ret = XjlScDeviceManage.modifyStatus(id);
+		ok(ret);
+	}
+	
+	/**
+	 * 执行二维码生成
+	 * @throws IOException 
+	 */
+	private static String root = "xjl_quickRush";
+	public static void doQRCode() throws IOException{
+	    WxUser wxUser = getWXUser();
+	    String newName = wxUser.wxOpenId+".png";
+	    String qrcode = params.get("qrcode");
+	    String id = params.get("id");
+	    String type = params.get("type");
+	    String savePath = QRCode.getUploadPath(type);
+	    savePath = savePath +newName;
+	    boolean flag = QRCode.zxingCodeCreate(qrcode,300,300,savePath,"png");
+	    int ret = 0;
+	    String [] path = savePath.split(root);
+	    if(flag){
+	    	ret = XjlScDeviceManage.modifyQRCode(qrcode,path[1], id);
+	    }
+	    ok(path[1]);
+	}
+	
+	
 	
 }

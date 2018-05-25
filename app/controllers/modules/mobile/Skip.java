@@ -181,4 +181,96 @@ public class Skip extends MobileFilter {
 		render("modules/xjldw/rush/error/sc_error.html");
 	}
 	
+	
+	/**
+	 * 跳转到设备管理界面
+	 */
+	public static void toDeviceManage(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		render("modules/xjldw/rush/deviceManage/sc_deviceManage.html");
+	}
+	
+	/**
+	 * 设备管理--控制器
+	 */
+	public static void toDeviceControl(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("type",params.get("type"));
+		render("modules/xjldw/rush/deviceManage/sc_deviceControl.html");
+	}
+	
+	/**
+	 * 设备管理--传感器
+	 */
+	public static void toDeviceSensor(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("type",params.get("type"));
+		render("modules/xjldw/rush/deviceManage/sc_deviceSensor.html");
+	}
+	
+	/**
+	 * 设备管理--电磁阀
+	 */
+	public static void toDeviceRadiotube(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("type",params.get("type"));
+		render("modules/xjldw/rush/deviceManage/sc_deviceRadiotube.html");
+	}
+	
+	/**
+	 * 设备管理--液位仪
+	 */
+	public static void toDeviceLiquid(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("type",params.get("type"));
+		render("modules/xjldw/rush/deviceManage/sc_deviceLiquid.html");
+	}
+	
+	/**
+	 * 设备管理--wifi
+	 */
+	public static void toDeviceWifi(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("type",params.get("type"));
+		render("modules/xjldw/rush/deviceManage/sc_deviceWifi.html");
+	}
+	
+	/**
+	 * 设备管理--驱蚊除味器
+	 */
+	public static void toDeviceMosq(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("type",params.get("type"));
+		render("modules/xjldw/rush/deviceManage/sc_deviceMosq.html");
+	}
+	/**
+	 * 设备管理--二维码
+	 */
+	public static void toQRCode(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("id",params.get("id"));
+		renderArgs.put("name",params.get("name"));
+		renderArgs.put("type",params.get("type"));
+		render("modules/xjldw/rush/deviceManage/sc_qrcode.html");
+	}
+	
+	/**
+	 * 设备管理--查看二维码
+	 */
+	public static void toShowQrcode(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("id",params.get("id"));
+		render("modules/xjldw/rush/deviceManage/sc_showQrcode.html");
+	}
+	
+	
 }

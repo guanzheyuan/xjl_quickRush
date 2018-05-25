@@ -22,11 +22,11 @@
 <script src="/sp/public/widgets/angularjs/angular-touch.min.js"></script>
 <script src="/sp/public/js/zepto.min.js"></script> 
 <script type="text/javascript">
- c                                                                                                                                                                                                                                                                                                                          .module('app', ['ngTouch'])
-	.value('appValue', {
-	    index: 1,
-	    size: 10
-	})
+angular.module('app', ['ngTouch'])
+		.value('appValue', {
+		    index: 1,
+		    size: 10
+		})
 	.factory('agentRemote',['$http','appValue',function($http, appValue){
 		return {
 			bindExp:function(data){
@@ -60,7 +60,7 @@
 		$scope.toWifi = function(){
 			location.href="/sp/mobile/Skip/toWifi?params=${toilet}&id=${id}";
 		}
-		//驱蚊器
+		//qu wen qi
 		$scope.toMosq = function(){
 			location.href="/sp/mobile/Skip/toMosq?params=${toilet}&id=${id}";
 		}

@@ -52,6 +52,10 @@ angular.module('app', ['ngTouch'])
 			$scope.toCheck = function(){
 				window.location.href="/sp/mobile/Skip/toCheckPending";
 			}
+			//设备管理
+			$scope.toDeviceManage = function(){
+				window.location.href="/sp/mobile/Skip/toDeviceManage";
+			}
 			//初始化
 			$scope.initDate = function(){
 				agentRemote.queryById().then(function(response){
@@ -109,8 +113,11 @@ angular.module('app', ['ngTouch'])
 		      		<div style="margin-top:-10%;font-size:13px;color:black;">日志</div>
             	</div>
             </div>
-            <div class="weui-flex-item">
-            	<div class="placeholder" style="background-color: #f8f8f8;"></div>
+            <div class="weui-flex-item" ng-click="toDeviceManage()">
+            	<div class="placeholder" style="background-color: #f8f8f8;">
+            		<img alt="设备管理" src="/sp/public/images/rush/device.png" style="width:30px;height:30px;" >
+		      		<div style="margin-top:-10%;font-size:13px;color:black;">设备管理</div>
+            	</div>
             </div>
         </div>
 </div>
