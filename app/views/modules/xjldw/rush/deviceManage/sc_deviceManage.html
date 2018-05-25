@@ -29,16 +29,22 @@ angular.module('app', ['ngTouch'])
 		})
 		.factory('agentRemote',['$http','appValue',function($http, appValue){
 			return {
-				queryById:function(){
+				query:function(data){
 					return $http({
 						method:'post',
-						url:''
+						url:'/sp/mobile/Execute/queryDevice',
+						params:data
 					});
 				}
 			}
 		}])
 		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue,agentRemote,$timeout){
-			
+			$scope.controlNum = 0;//控制器
+			$scope.sensorNum = 0;//传感器
+			$scope.radiotubeNum = 0;//电磁阀
+			$scope.liquidNum = 0;//液位仪
+			$scope.mosqNum = 0;//驱蚊除味器
+			$scope.wifiNum = 0;//无线
 			//设备管理--控制器
 			$scope.toDeviceControl = function(){
 				location.href="/sp/mobile/Skip/toDeviceControl?type=A";
@@ -63,6 +69,41 @@ angular.module('app', ['ngTouch'])
 			$scope.toDeviceMosq = function(){
 				location.href="/sp/mobile/Skip/toDeviceMosq?type=E";
 			}
+			$scope.initData = function(){
+				var data = {"businessStatus":'0','deviceStatus':'A'};
+				agentRemote.query(data).then(function(response){
+					$scope.controlNum = response.data.data.data.length
+				},function(response){
+				});
+				
+				var data_1 = {"businessStatus":'0','deviceStatus':'B'};
+				agentRemote.query(data_1).then(function(response){
+					$scope.sensorNum = response.data.data.data.length
+				},function(response){
+				});
+				var data_2 = {"businessStatus":'0','deviceStatus':'D'};
+				agentRemote.query(data_2).then(function(response){
+					$scope.radiotubeNum = response.data.data.data.length
+				},function(response){
+				});
+				var data_3 = {"businessStatus":'0','deviceStatus':'C'};
+				agentRemote.query(data_3).then(function(response){
+					$scope.liquidNum = response.data.data.data.length
+				},function(response){
+				});
+				var data_4 = {"businessStatus":'0','deviceStatus':'F'};
+				agentRemote.query(data_4).then(function(response){
+					$scope.wifiNum = response.data.data.data.length
+				},function(response){
+				});
+				var data_5 = {"businessStatus":'0','deviceStatus':'E'};
+				agentRemote.query(data_4).then(function(response){
+					$scope.mosqNum = response.data.data.data.length
+				},function(response){
+				});
+				
+			}
+			$scope.initData();
 		}]);
 </script>
 </head>
@@ -78,13 +119,13 @@ angular.module('app', ['ngTouch'])
 		      <div class="weui-flex-item" >
 		      	<div class="placeholder" style="background-color: #f8f8f8;">
 		      		<img alt="控制器" src="/sp/public/images/rush/kzq.png" style="width:30px;height:30px;" ng-click="toDeviceControl()"   >
-		      		<div style="margin-top:-10%;font-size:13px;color:black;">控制器(0)</div>
+		      		<div style="margin-top:-10%;font-size:13px;color:black;">控制器({{controlNum}})</div>
 		      	</div>
 		      </div>
 		      <div class="weui-flex-item" >
 		      	<div class="placeholder" style="background-color: #f8f8f8;">
 		      		<img alt="传感器" src="/sp/public/images/rush/cgq.png" style="width:30px;height:30px;" ng-click="toDeviceSensor()">
-		      		<div style="margin-top:-10%;font-size:13px;color:black;">传感器(0)</div>
+		      		<div style="margin-top:-10%;font-size:13px;color:black;">传感器({{sensorNum}})</div>
 		      	</div>
 		      </div>
 	 </div>
@@ -93,13 +134,13 @@ angular.module('app', ['ngTouch'])
            <div class="weui-flex-item" >
            	<div class="placeholder" style="background-color: #f8f8f8;">
             	<img alt="电磁阀" src="/sp/public/images/rush/dcf.png" style="width:30px;height:30px;" ng-click="toDeviceRadiotube()">
-	      		<div style="margin-top:-10%;font-size:13px;color:black;">电磁阀(0)</div>
+	      		<div style="margin-top:-10%;font-size:13px;color:black;">电磁阀({{radiotubeNum}})</div>
            	</div>
            </div>
            <div class="weui-flex-item" >
            	<div class="placeholder" style="background-color: #f8f8f8;">
            		<img alt="液位仪" src="/sp/public/images/rush/ywy.png" style="width:30px;height:30px;" ng-click="toDeviceLiquid()">
-	      		<div style="margin-top:-10%;font-size:13px;color:black;">液位仪(0)</div>
+	      		<div style="margin-top:-10%;font-size:13px;color:black;">液位仪({{liquidNum}})</div>
            	</div>
            </div>
       	</div>
@@ -108,13 +149,13 @@ angular.module('app', ['ngTouch'])
 	            <div class="weui-flex-item" >
 	            	<div class="placeholder" style="background-color: #f8f8f8;">
 		            	<img alt="WIFI" src="/sp/public/images/rush/wifi.png" style="width:30px;height:30px;" ng-click="toDeviceWifi()">
-			      		<div style="margin-top:-10%;font-size:13px;color:black;">WIFI(0)</div>
+			      		<div style="margin-top:-10%;font-size:13px;color:black;">WIFI({{wifiNum}})</div>
 	            	</div>
 	            </div>
 	            <div class="weui-flex-item">
 	            	<div class="placeholder" style="background-color: #f8f8f8;">
 	            		<img alt="驱蚊除味" src="/sp/public/images/rush/mosq.png" style="width:30px;height:30px;" ng-click="toDeviceMosq()" >
-	            		<div style="margin-top:-10%;font-size:13px;color:black;">驱蚊除味(0)</div>
+	            		<div style="margin-top:-10%;font-size:13px;color:black;">驱蚊除味({{mosqNum}})</div>
 	            	</div>
 	            </div>
         	</div>

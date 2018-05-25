@@ -448,6 +448,54 @@ public class Execute  extends MobileFilter {
 	    ok(path[1]);
 	}
 	
+	/**
+	 * 验证二维码是否有效
+	 */
+	public static void queryQrCode(){
+		String qrCode = params.get("qrCode");
+		String deviceStatus = params.get("deviceStatus");
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Map<String,String> condition = new HashMap<>();
+		condition.put("deviceStatus", deviceStatus);
+		condition.put("qrCode", qrCode);
+		XjlScDeviceManage deviceManage = XjlScDeviceManage.queryByQRCode(condition, pageIndex, pageSize);
+		ok(StringUtil.isNotEmpty(deviceManage));
+	}
 	
+	/**
+	 * 出库操作
+	 */
+	public static void modifyBussinessStatus(){
+		String qrCode = params.get("qrCode");
+		String deviceStatus = params.get("deviceStatus");
+		int ret = XjlScDeviceManage.modifyBussinessDevice(qrCode, deviceStatus);
+		ok(ret>0);
+	}
 	
+	/**
+	 * 生成二维码校验
+	 */
+	public static void queryRetByQRCode(){
+		String qrCode = params.get("qrCode");
+		String deviceStatus = params.get("deviceStatus");
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Map<String,String> condition = new HashMap<>();
+		condition.put("deviceStatus", deviceStatus);
+		condition.put("qrCode", qrCode);
+		XjlScDeviceManage deviceManage = XjlScDeviceManage.queryRetByQRCode(condition, pageIndex, pageSize);
+		ok(StringUtil.isNotEmpty(deviceManage) == false);
+	}
+	
+	/**
+	 * 统计每个类型
+	 */
+	public static void queryCount(){
+		int pageIndex = StringUtil.getInteger(params.get("PAGE_INDEX"), 1);
+		int pageSize = StringUtil.getInteger(params.get("PAGE_SIZE"), 100);
+		Map<String,String> condition = new HashMap<>();
+		Map map = XjlScDeviceManage.queryCount(condition, pageIndex, pageSize);
+		ok(map);
+	}
 }

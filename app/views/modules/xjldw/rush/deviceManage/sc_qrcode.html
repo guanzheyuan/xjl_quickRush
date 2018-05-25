@@ -32,6 +32,13 @@ angular.module('app', ['ngTouch'])
 						url:'/sp/mobile/Execute/doQRCode',
 						params:data
 					});
+				},
+				reptQrCode:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/queryRetByQRCode',
+						params:data
+					});
 				}
 			}
 		}])
@@ -42,10 +49,19 @@ angular.module('app', ['ngTouch'])
 				if($("#qrcode").val() == ""){
 					$.toptips('请填写设备编号！','warning');return;
 				}
-				var data={"qrcode":$("#qrcode").val(),"id":'${id}','type':'${type}'}
-				agentRemote.doQRCode(data).then(function(response){
-					$("#qrpath").attr('src','../../../sp'+response.data.data);
-					$("#showQr").show();
+				//校验验证码
+				var data_1={"qrCode":$("#qrcode").val(),"deviceStatus":'${type}'}
+				agentRemote.reptQrCode(data_1).then(function(response){
+					if(response.data.data){
+						var data={"qrcode":$("#qrcode").val(),"id":'${id}','type':'${type}'}
+						agentRemote.doQRCode(data).then(function(response){
+							$("#qrpath").attr('src','../../../sp'+response.data.data);
+							$("#showQr").show();
+						},function(response){
+						})
+					}else{
+						 $.toptips('设备编号重复！','warning')
+					}
 				},function(response){
 				})
 			}
