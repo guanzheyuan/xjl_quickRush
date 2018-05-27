@@ -76,7 +76,7 @@ public class XjlScToiletInfo extends GenericModel {
 	
 	public static Map query(Map<String, String> condition,
 			int pageIndex, int pageSize){
-		String sql = "select a.id,a.toilet_name,a.toilet_code,a.status,a.device_code,a.control_code,a.sensor_code,a.radiotube_code,a.liquid_code,a.wifi_code from xjl_sc_toiletinfo a ,xjl_sc_school_toilet b where a.id = b.toilet_id and b.status='0AA' and b.school_id='"+condition.get("schoolId")+"'";
+		String sql = "select a.id,a.toilet_name,a.toilet_code,a.status,a.device_code,a.control_code,a.sensor_code,a.radiotube_code,a.liquid_code,a.wifi_code,a.mosq_code from xjl_sc_toiletinfo a ,xjl_sc_school_toilet b where a.id = b.toilet_id and b.status='0AA' and b.school_id='"+condition.get("schoolId")+"'";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<Object[]> retData = ModelUtils.queryData(pageIndex, pageSize, ret);
 		List<XjlScToiletInfo> data =  new ArrayList<XjlScToiletInfo>();
@@ -113,13 +113,16 @@ public class XjlScToiletInfo extends GenericModel {
 			if(m[9]!=null){
 				xjlScToiletInfo.isWifi  =true;
 			}
+			if(m[10]!=null){
+				xjlScToiletInfo.isMosq  =true;
+			}
 			data.add(xjlScToiletInfo);
 		}
 		return ModelUtils.createResultMap(ret, data);
 	}
 	
 	public static int delete(String id){
-		String sql = "delete from xjl_sc_toiletinfo where id='"+id+"'";
+		String sql = "update  xjl_sc_toiletinfo set status='0XX' where id='"+id+"'";
 		Map<String, String> condition = new HashMap<String, String>();
 		return ModelUtils.executeDelete(condition, sql);
 	}
@@ -158,6 +161,12 @@ public class XjlScToiletInfo extends GenericModel {
 	
 	public static int modifyToilet(String toiletName,String id){
 		String sql="update xjl_sc_toiletinfo set toilet_name='"+toiletName+"' where id='"+id+"'";
+		Map<String, String> condition = new HashMap<String, String>();
+		return ModelUtils.executeDelete(condition, sql);
+	}
+	
+	public static int modifyRun(String status,String id){
+		String sql="update xjl_sc_toiletinfo set status='"+status+"' where id='"+id+"'";
 		Map<String, String> condition = new HashMap<String, String>();
 		return ModelUtils.executeDelete(condition, sql);
 	}

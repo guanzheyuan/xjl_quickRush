@@ -59,7 +59,7 @@ angular.module('app', ['ngTouch'])
 			}
 			//设备管理--液位仪
 			$scope.toDeviceLiquid = function(){
-				location.href="/sp/mobile/Skip/toDeviceLiquid?type=D";
+				location.href="/sp/mobile/Skip/toDeviceLiquid?type=C";
 			}
 			//设备管理--wifi
 			$scope.toDeviceWifi = function(){
@@ -97,7 +97,7 @@ angular.module('app', ['ngTouch'])
 				},function(response){
 				});
 				var data_5 = {"businessStatus":'0','deviceStatus':'E'};
-				agentRemote.query(data_4).then(function(response){
+				agentRemote.query(data_5).then(function(response){
 					$scope.mosqNum = response.data.data.data.length
 				},function(response){
 				});

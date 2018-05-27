@@ -9,7 +9,7 @@ public class XjlScToiletInfoBo {
 
 	
 	public static XjlScToiletInfo save(XjlScToiletInfo xjlScToiletInfo){
-		xjlScToiletInfo.id=SeqUtil.maxValue("xjl_sc_school_user","id");
+		xjlScToiletInfo.id=SeqUtil.maxValue("xjl_sc_toiletinfo","id");
 		xjlScToiletInfo.createTime = DateUtil.getNowDate();
 		xjlScToiletInfo.status = "5";
 		xjlScToiletInfo.deviceCode = UUID.randomUUID().toString();

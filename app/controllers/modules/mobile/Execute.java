@@ -225,6 +225,7 @@ public class Execute  extends MobileFilter {
 	 * 新增
 	 */
 	public static void saveToilet(){
+		Logger.info("============================================开始新增");
 		String toiletName = params.get("toiletName");
 		XjlScToiletInfo xjlScToiletInfo = new XjlScToiletInfo();
 		xjlScToiletInfo.toiletName = toiletName;
@@ -237,6 +238,15 @@ public class Execute  extends MobileFilter {
 		xjlScSchoolToilet = XjlScSchoolToiletBo.save(xjlScSchoolToilet);
 	}
 	
+	/**
+	 * 允许运行
+	 */
+	public static void modifyRun(){
+		String id = params.get("id");
+		String status = params.get("status");
+		XjlScToiletInfo.modifyRun(status, id);
+	}
+	
 	
 	/**
 	 * 删除卫生间
@@ -244,6 +254,7 @@ public class Execute  extends MobileFilter {
 	public static void delToilet(){
 		String id = params.get("id");
 		XjlScToiletInfo.delete(id);
+		XjlScSchoolToilet.delete(id);
 	}
 	
 	/**

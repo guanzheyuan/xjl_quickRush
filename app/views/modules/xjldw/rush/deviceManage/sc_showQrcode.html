@@ -41,7 +41,6 @@ angular.module('app', ['ngTouch'])
 			$scope.initQr = function(){
 				var data = {'id':'${id}'};
 				agentRemote.doQRCode(data).then(function(response){
-					console.log(response);
 					$("#qrpath").attr('src','../../../sp'+response.data.data.QRcodePath);
 				},function(response){
 				})
@@ -52,6 +51,11 @@ angular.module('app', ['ngTouch'])
 </script>
 </head>
 <body ng-cloak ng-controller="MainController" ontouchstart style="background-color: #f8f8f8;">
+<div style="margin:9px;">
+	 	<h1 class="page-hd-title">
+        </h1>
+        <p class="page-hd-desc">长按可保存二维码！</p>
+</div>
 <div id="showQr">
 	<img id="qrpath" src="" class="img-border img-max" style="width:100%;height:100%;">
 </div>

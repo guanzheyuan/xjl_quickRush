@@ -35,6 +35,13 @@ angular.module('app', ['ngTouch'])
 					url:'/sp/mobile/Execute/modifyBindCode',
 					params:data
 				});
+			},
+			modifyRun:function(data){
+				return $http({
+					method:'post',
+					url:'/sp/mobile/Execute/modifyRun',
+					params:data
+				});
 			}
 		}
 	}])
@@ -65,7 +72,16 @@ angular.module('app', ['ngTouch'])
 			location.href="/sp/mobile/Skip/toMosq?params=${toilet}&id=${id}";
 		}
 		$scope.doLineTcp = function(){
-			 $.toptips('暂无法链接tcp服务器','warning')
+			 //$.toptips('暂无法链接tcp服务器','warning')
+			 var data = {"id":'${id}',"status":'1'};
+			 agentRemote.modifyRun(data).then(function(response){
+				 $.toast("操作成功");
+				 setTimeout(function() {
+						location.href="/sp/mobile/Skip/toScConfig";
+				     },1000);
+			 },function(response){
+				 
+			 })
 		}
 	}])
 </script>

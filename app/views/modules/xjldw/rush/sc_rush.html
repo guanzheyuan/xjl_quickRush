@@ -205,8 +205,8 @@ angular.module('app', ['ngTouch','ionic'])
 			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 2" ng-click="agentRemoteInfo('{{toilet.toiletName}}')"><span class='f-gray'>冲水</span></div>
 			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 3" ng-click="agentRemoteInfo('{{toilet.toiletName}}')"><span class='f-red'>异常</span></div>
 			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 4" ng-click="agentRemoteInfo('{{toilet.toiletName}}')"><span class='f-red'>离线</span></div>
-			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="${wxUser.isAdmin} == true && toilet.status == 5" ng-click="toBindExplain('{{toilet.toiletName}}','{{toilet.id}}')"  ><span class='f-red'>尚未关联设备</span></div>
-			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="${wxUser.isAdmin} == false && toilet.status == 5"   ><span class='f-red'>尚未关联设备</span></div>
+			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 5 && toilet.isControl == false||toilet.isLiquid==false||toilet.isMosq==false||toilet.isRadiotube==false||toilet.isSensor==false||toilet.isWifi==false"   ><span class='f-red'>尚未关联设备</span></div>
+			     <div class="weui_cell_bd" style="margin-right:20%;" ng-if="toilet.status == 5 && toilet.isControl == true&&toilet.isLiquid==true&&toilet.isMosq==true&&toilet.isRadiotube==true&&toilet.isSensor==true&&toilet.isWifi==true"><span class='f-orange'>关联设备,未链接tcp</span></div>
 			     <div class="weui_cell_ft" >
 			     <a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_primary" ng-if="${wxUser.isAdmin} == true &&(toilet.status == 1 || toilet.status == 3)" ng-click="flushOpen('{{toilet.deviceCode}}')">强冲</a>
 			     <a href="javascript:;" class="weui_btn weui_btn_disabled weui_btn_mini weui_btn_default" ng-if="${wxUser.isAdmin} == true &&(toilet.status == 2 || toilet.status == 4)">强冲</a>
