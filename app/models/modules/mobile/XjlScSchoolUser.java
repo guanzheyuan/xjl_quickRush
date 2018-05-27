@@ -41,6 +41,12 @@ public class XjlScSchoolUser extends GenericModel {
 	@Column(name = "CREATE_TIME")
 	public Date createTime;
 	
+	@Column(name = "username")
+	public String username;
+	
+	@Column(name = "telephone")
+	public String telephone;
+	
 	@Transient
 	public String nickName;
 	
@@ -75,7 +81,7 @@ public class XjlScSchoolUser extends GenericModel {
 	
 	public static List<XjlScSchoolUser> queryCheckPending(Map<String, String> condition,
 			int pageIndex, int pageSize){
-		String sql="select b.nick_name,b.wx_open_id,a.id from xjl_sc_school_user a,wx_user b where a.wx_open_id=b.wx_open_id and a.status='0UU' and a.school_id='"+condition.get("schoolId")+"' order by a.create_time desc";
+		String sql="select b.nick_name,b.wx_open_id,a.id,a.username from xjl_sc_school_user a,wx_user b where a.wx_open_id=b.wx_open_id and a.status='0UU' and a.school_id='"+condition.get("schoolId")+"' order by a.create_time desc";
 		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
 		List<Object[]> retData = ModelUtils.queryData(pageIndex, pageSize, ret);
 		List<XjlScSchoolUser> data  = new ArrayList<>();
@@ -90,6 +96,9 @@ public class XjlScSchoolUser extends GenericModel {
 			}
 			if(m[2]!=null){
 				xjlScSchoolUser.id = StringUtil.getLong(m[2].toString());
+			}
+			if(m[3]!=null){
+				xjlScSchoolUser.username = m[3].toString();
 			}
 			data.add(xjlScSchoolUser);
 		}

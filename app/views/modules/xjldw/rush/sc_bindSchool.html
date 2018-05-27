@@ -74,6 +74,15 @@ angular.module('app', ['ngTouch'])
 					  arrayName:[]
 			  }
 			$scope.bindSchool = function(){
+				if($("#name").val() == ''){
+					$.toptips('请输入姓名','warning');return;
+				}
+				if($("#telephone").val() == ''){
+					$.toptips('请输入手机号','warning');return;
+				}
+				if($("#telephone").val().length != 11){
+					$.toptips('请输入正确的手机号','warning');return;
+				}
 				if($('#school').val() == ''){
 					$.toptips('请选择院校','warning');return;
 				}
@@ -83,7 +92,7 @@ angular.module('app', ['ngTouch'])
 						schoolId  = $scope.objArr.arrayId[i];
 					}
 				}
-				var data = {"schoolId":schoolId};
+				var data = {"schoolId":schoolId,"userName":$("#name").val(),"telephone":$("#telephone").val()};
 				agentRemote.queryReptCheck().then(function(response){
 					if(!response.data.data){
 						agentRemote.queryRept().then(function(response){
@@ -154,7 +163,19 @@ angular.module('app', ['ngTouch'])
         	 		<div class="placeholder" style="background-color: #f8f8f8;"><img alt="" src="/sp/public/images/rush/school.png" style="width:150px;height:150px;"></div>
             </div>
       </div>
-       <div class="" style="margin-top:130px;">
+      <div class="" style="margin-top:130px;">
+              <div class="" style="text-align:center;font-weight:">姓名</div>
+              <div class="weui_cell_bd weui_cell_primary" style="padding:15px;">
+                  <input class="weui_input" style="text-align:center;" type="text" value="" id='name'  placeholder="输入姓名"/>
+              </div>
+       </div>
+      <div class="">
+              <div class="" style="text-align:center;font-weight:">手机号</div>
+              <div class="weui_cell_bd weui_cell_primary" style="padding:15px;">
+                  <input class="weui_input" style="text-align:center;" type="text" value="" id='telephone' pattern="[0-9]*"  placeholder="输入手机号"/>
+              </div>
+       </div>
+       <div class="">
               <div class="" style="text-align:center;font-weight:">选择学校</div>
               <div class="weui_cell_bd weui_cell_primary" style="padding:15px;">
                   <input class="weui_input" style="text-align:center;" type="text" value="" id='school'  placeholder="点我选择学校"/>

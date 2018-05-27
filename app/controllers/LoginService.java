@@ -86,9 +86,13 @@ public class LoginService extends BaseController {
 		SessionInfo sessionInfo=MobileFilter.getSessionInfo();
  		WxUser wxUser =sessionInfo.getWxUser();
  		String schoolId = params.get("schoolId");
+ 		String userName = params.get("userName");
+ 		String telephone = params.get("telephone");
  		XjlScSchoolUser xjlScSchoolUser = new XjlScSchoolUser();
  		xjlScSchoolUser.schoolId = Long.valueOf(schoolId);
  		xjlScSchoolUser.wxOpenId = wxUser.wxOpenId;
+ 		xjlScSchoolUser.username = userName;
+ 		xjlScSchoolUser.telephone = telephone;
  		xjlScSchoolUser = XjlScSchoolUserBo.save(xjlScSchoolUser);
  		ok(xjlScSchoolUser);
 	}

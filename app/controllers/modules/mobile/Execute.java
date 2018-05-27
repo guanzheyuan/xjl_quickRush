@@ -317,6 +317,7 @@ public class Execute  extends MobileFilter {
         XjlScSchoolUser xjlSchoolUser = XjlScSchoolUser.queryFindByWxOpenId(condition, pageIndex, pageSize);
 		if(StringUtil.isNotEmpty(xjlSchoolUser)){
 			wxUser.xjlScSChool = XjlScSchool.getSchoolBySchoolId(xjlSchoolUser.schoolId,"");
+			wxUser.scSchoolUser = xjlSchoolUser;
 		}
 		ok(wxUser);
 	}

@@ -59,6 +59,7 @@ angular.module('app', ['ngTouch'])
 			//初始化
 			$scope.initDate = function(){
 				agentRemote.queryById().then(function(response){
+					console.log(response);
 					$scope.user = response.data.data;
 				},function(){
 				});
@@ -70,11 +71,23 @@ angular.module('app', ['ngTouch'])
 <body ng-cloak ng-controller="MainController" ontouchstart style="background-color: #f8f8f8;">
 <div class="weui_cells weui_cells_form">
 	<div class="weui_cell">
+	     <div class="weui_cell_hd" style="width:20%;"><label class="weui_label">姓名：</label></div>
+	     <div class="weui_cell_bd weui_cell_primary" style="float:left;">
+	         ${wxUser.scSchoolUser.username}
+	     </div>
+	</div>
+	<div class="weui_cell">
+	     <div class="weui_cell_hd" style="width:20%;"><label class="weui_label">电话：</label></div>
+	     <div class="weui_cell_bd weui_cell_primary" style="float:left;">
+	         ${wxUser.scSchoolUser.telephone}
+	     </div>
+	</div>
+	<!-- <div class="weui_cell">
 	     <div class="weui_cell_hd" style="width:20%;"><label class="weui_label">昵称：</label></div>
 	     <div class="weui_cell_bd weui_cell_primary" style="float:left;">
 	         {{user.nickName}}
 	     </div>
-	</div>
+	</div> -->
 	<div class="weui_cell">
 	     <div class="weui_cell_hd" style="width:20%;"><label class="weui_label">性别：</label></div>
 	     <div class="weui_cell_bd weui_cell_primary" style="float:left;">

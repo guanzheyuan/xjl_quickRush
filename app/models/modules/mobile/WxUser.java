@@ -89,6 +89,9 @@ public class WxUser extends GenericModel {
 	public XjlScSchool xjlScSChool;
 	
 	@Transient
+	public XjlScSchoolUser scSchoolUser;
+	
+	@Transient
 	public boolean isBinding;
 	
 	@Transient
@@ -121,6 +124,7 @@ public class WxUser extends GenericModel {
         	wxUser.isBinding = StringUtil.isNotEmpty(xjlSchoolUser);
         	if(StringUtil.isNotEmpty(xjlSchoolUser)){
         		wxUser.xjlScSChool =  XjlScSchool.getSchoolBySchoolId(xjlSchoolUser.schoolId,"");
+        		wxUser.scSchoolUser = xjlSchoolUser;
         	}
         	//查询该用户是否绑定为管理员
         	if(StringUtil.isNotEmpty(xjlSchoolUser)){
