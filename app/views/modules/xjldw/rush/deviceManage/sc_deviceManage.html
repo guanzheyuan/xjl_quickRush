@@ -45,6 +45,8 @@ angular.module('app', ['ngTouch'])
 			$scope.liquidNum = 0;//液位仪
 			$scope.mosqNum = 0;//驱蚊除味器
 			$scope.wifiNum = 0;//无线
+			$scope.fan = 0;//风扇
+			$scope.light = 0;//灯光
 			//设备管理--控制器
 			$scope.toDeviceControl = function(){
 				location.href="/sp/mobile/Skip/toDeviceControl?type=A";
@@ -68,6 +70,14 @@ angular.module('app', ['ngTouch'])
 			//设备管理--驱蚊除味器
 			$scope.toDeviceMosq = function(){
 				location.href="/sp/mobile/Skip/toDeviceMosq?type=E";
+			}
+			//设备管理--灯光
+			$scope.toDeviceLight = function(){
+				location.href="/sp/mobile/Skip/toDeviceLight?type=G";
+			}
+			//设备管理--排风扇
+			$scope.toDeviceFan = function(){
+				location.href="/sp/mobile/Skip/toDeviceFan?type=H";
 			}
 			$scope.initData = function(){
 				var data = {"businessStatus":'0','deviceStatus':'A'};
@@ -99,6 +109,16 @@ angular.module('app', ['ngTouch'])
 				var data_5 = {"businessStatus":'0','deviceStatus':'E'};
 				agentRemote.query(data_5).then(function(response){
 					$scope.mosqNum = response.data.data.data.length
+				},function(response){
+				});
+				var data_6 = {"businessStatus":'0','deviceStatus':'G'};
+				agentRemote.query(data_6).then(function(response){
+					$scope.light = response.data.data.data.length
+				},function(response){
+				});
+				var data_7 = {"businessStatus":'0','deviceStatus':'H'};
+				agentRemote.query(data_7).then(function(response){
+					$scope.fan = response.data.data.data.length
 				},function(response){
 				});
 				
@@ -145,20 +165,35 @@ angular.module('app', ['ngTouch'])
            </div>
       	</div>
       	<!--  -->
-        	<div class="weui-flex" style="margin-top:10%;">
-	            <div class="weui-flex-item" >
-	            	<div class="placeholder" style="background-color: #f8f8f8;">
-		            	<img alt="WIFI" src="/sp/public/images/rush/wifi.png" style="width:30px;height:30px;" ng-click="toDeviceWifi()">
-			      		<div style="margin-top:-10%;font-size:13px;color:black;">WIFI({{wifiNum}})</div>
-	            	</div>
-	            </div>
-	            <div class="weui-flex-item">
-	            	<div class="placeholder" style="background-color: #f8f8f8;">
-	            		<img alt="驱蚊除味" src="/sp/public/images/rush/mosq.png" style="width:30px;height:30px;" ng-click="toDeviceMosq()" >
-	            		<div style="margin-top:-10%;font-size:13px;color:black;">驱蚊除味({{mosqNum}})</div>
-	            	</div>
-	            </div>
-        	</div>
+       	<div class="weui-flex" style="margin-top:10%;">
+            <div class="weui-flex-item" >
+            	<div class="placeholder" style="background-color: #f8f8f8;">
+	            	<img alt="WIFI" src="/sp/public/images/rush/wifi.png" style="width:30px;height:30px;" ng-click="toDeviceWifi()">
+		      		<div style="margin-top:-10%;font-size:13px;color:black;">WIFI({{wifiNum}})</div>
+            	</div>
+            </div>
+            <div class="weui-flex-item">
+            	<div class="placeholder" style="background-color: #f8f8f8;">
+            		<img alt="驱蚊除味" src="/sp/public/images/rush/mosq.png" style="width:30px;height:30px;" ng-click="toDeviceMosq()" >
+            		<div style="margin-top:-10%;font-size:13px;color:black;">驱蚊除味({{mosqNum}})</div>
+            	</div>
+            </div>
+       	</div>
+       	<!--  -->
+       	<div class="weui-flex" style="margin-top:10%;">
+            <div class="weui-flex-item" >
+            	<div class="placeholder" style="background-color: #f8f8f8;">
+	            	<img alt="灯光" src="/sp/public/images/rush/light.png" style="width:30px;height:30px;" ng-click="toDeviceLight()">
+		      		<div style="margin-top:-10%;font-size:13px;color:black;">灯光({{light}})</div>
+            	</div>
+            </div>
+            <div class="weui-flex-item">
+            	<div class="placeholder" style="background-color: #f8f8f8;">
+            		<img alt="排风扇" src="/sp/public/images/rush/fan.png" style="width:30px;height:30px;" ng-click="toDeviceFan()" >
+            		<div style="margin-top:-10%;font-size:13px;color:black;">风扇({{fan}})</div>
+            	</div>
+            </div>
+       	</div>
 </div>
 </body>
 </html>

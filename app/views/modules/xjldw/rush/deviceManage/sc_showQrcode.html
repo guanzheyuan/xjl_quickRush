@@ -37,10 +37,13 @@ angular.module('app', ['ngTouch'])
 			}
 		}])
 		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue,agentRemote,$timeout){
+			$scope.QRCode;
 			//展示二维码
 			$scope.initQr = function(){
 				var data = {'id':'${id}'};
 				agentRemote.doQRCode(data).then(function(response){
+					console.log(response);
+					$scope.QRCode = response.data.data.QRcode;
 					$("#qrpath").attr('src','../../../sp'+response.data.data.QRcodePath);
 				},function(response){
 				})
@@ -58,6 +61,12 @@ angular.module('app', ['ngTouch'])
 </div>
 <div id="showQr">
 	<img id="qrpath" src="" class="img-border img-max" style="width:100%;height:100%;">
+</div>
+<div class="weui_cell" style="margin-top:10%;">
+      <div class="weui_cell_hd"><label class="weui_label">设备编码:</label></div>
+      <div class="weui_cell_bd weui_cell_primary">
+           {{QRCode}}
+      </div>
 </div>
 </body>
 </html>

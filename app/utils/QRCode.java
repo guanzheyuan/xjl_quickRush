@@ -29,6 +29,8 @@ public class QRCode {
 	public static final String folder_liquid ="liquid";
 	public static final String folder_wifi = "wifi";
 	public static final String folder_mosq="mosq";
+	public static final String folder_light = "light";
+	public static final String folder_fan = "fan";
 	//二维码颜色  
     private static final int BLACK = 0xFF000000;  
     //二维码颜色  
@@ -152,6 +154,24 @@ public class QRCode {
 		else if("F".equals(type)){
 			savePath = Play.roots.get(0).child(UPLOAD_ROOT_DIR)
 					.child("tmp").child(folder_wifi).getRealFile().getAbsolutePath()
+					+ File.separator
+					+ year
+					+ File.separator
+					+ month
+					+ File.separator + day + File.separator;
+		}
+		else if("G".equals(type)){
+			savePath = Play.roots.get(0).child(UPLOAD_ROOT_DIR)
+			.child("tmp").child(folder_light).getRealFile().getAbsolutePath()
+			+ File.separator
+			+ year
+			+ File.separator
+			+ month
+			+ File.separator + day + File.separator;
+		}
+		else if("H".equals(type)){
+			savePath = Play.roots.get(0).child(UPLOAD_ROOT_DIR)
+					.child("tmp").child(folder_fan).getRealFile().getAbsolutePath()
 					+ File.separator
 					+ year
 					+ File.separator

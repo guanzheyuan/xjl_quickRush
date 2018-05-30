@@ -71,6 +71,22 @@ public class XjlScConfig extends GenericModel {
 		return ModelUtils.createResultMap(ret, data);
 	}
 	
+	public static Map queryLam(Map<String, String> condition,
+			int pageIndex, int pageSize){
+		String sql="select * from xjl_sc_config where status='0AA' and  config_status='4' order by time_quantum asc";
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<XjlScConfig> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlScConfig.class);
+		return ModelUtils.createResultMap(ret, data);
+	}
+	
+	public static Map queryVen(Map<String, String> condition,
+			int pageIndex, int pageSize){
+		String sql="select * from xjl_sc_config where status='0AA' and  config_status='5' order by time_quantum asc";
+		SQLResult ret = ModelUtils.createSQLResult(condition, sql);
+		List<XjlScConfig> data = ModelUtils.queryData(pageIndex, pageSize, ret,XjlScConfig.class);
+		return ModelUtils.createResultMap(ret, data);
+	}
+	
 	public static int modifyInterval(String timeQuantum,String interval){
 		String sql = "update xjl_sc_config set interval='"+interval+"' where time_quantum = '"+timeQuantum+"'";
 		Map<String, String> condition = new HashMap<String, String>();

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<title>灯光</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui"/>
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="yes" name="apple-touch-fullscreen" />
+<meta content="telephone=no" name="format-detection" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<link rel="stylesheet" href="/sp/public/weui/css/weui.css">
+<link rel="stylesheet" href="/sp/public/weui/css/weui2.css"/>
+<link rel="stylesheet" href="/sp/public/weui/css/weui3.css"/>
+
+<!--  -->
+<link rel="stylesheet" href="/sp/public/weui/css/weui.min.css">
+<link rel="stylesheet" href="/sp/public/weui/css/jquery-weui.css"/>
+<!-- <link rel="stylesheet" href="/sp/public/weui/css/demos.css"/>  -->
+
+<!--  -->
+<script src="/sp/public/js/jquery-1.9.1.min.js"></script>
+<script src="/sp/public/weui/js/jquery-weui.js"></script>
+<script src="https://cdn.bootcss.com/ionic/1.3.2/js/ionic.bundle.min.js"></script>
+<script src="/sp/public/widgets/zeptojs/zepto.min.js"></script>
+<script src="/sp/public/widgets/dropload/dropload.min.js"></script>
+<!-- <script src="/sp/public/widgets/angularjs/angular.min.js"></script> -->
+<script src="/sp/public/widgets/angularjs/angular-touch.min.js"></script>
+<script src="/sp/public/js/zepto.min.js"></script>
+<script src="/sp/public/widgets/picker/js/picker.js"></script>
+<style type="text/css">
+</style>
+<script type="text/javascript">
+angular.module('app', ['ngTouch','ionic'])
+	.value('appValue', {
+	    index: 1,
+	    size: 10
+	})
+	.factory('agentRemote',['$http','appValue',function($http, appValue){
+			return {
+				query:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/queryDevice',
+						params:data
+					});
+				},
+				save:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/saveDevice',
+						params:data
+					});
+				},
+				queryById:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/queryDeviceById',
+						params:data
+					});
+				},
+				modify:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/modifyDevice',
+						params:data
+					});
+				},
+				modifyStatus:function(data){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/modifyDeviceStatus',
+						params:data
+					});
+				}
+			}
+		}])
+		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue,agentRemote,$timeout){
+			$scope.deviceList = [];
+			
+			$scope.toShowQr = function(id){
+				location.href="/sp/mobile/Skip/toShowQrcode?id="+id;
+			}
+			$scope.initMenu = function(){
+				  $('.weui_tabbar').tab({
+					    defaultIndex: 0,
+					    activeClass:'weui_bar_item_on',
+					    onToggle:function(index){
+						    if(index>0){
+						    	$("#save").hide();
+						    	var data = {"businessStatus":'1','deviceStatus':'G'};
+								agentRemote.query(data).then(function(response){
+									$scope.deviceList = response.data.data.data;
+								},function(response){
+								});
+						    }else{
+						    	$scope.initData();
+						    	$("#save").show();
+						    }
+					    }
+					});
+			}
+			//点击触发事件
+			$scope.onHold = function(id,name){
+				$.actions({
+			          title: "选择操作",
+			          onClose: function() {
+			            console.log("close");
+			          },
+			          actions: [
+			            {
+			              text: "编辑",
+			              className: "color-warning",
+			              onClick: function() {
+			            	  var data = {'id':id};
+			            	  agentRemote.queryById(data).then(function(response){
+			            		  console.log(response);
+			            		  if(response.data.data){
+			            			  $.prompt(response.data.data.name,"修改灯光", function(text) {
+			            				  if(text == ''){
+			      							$.toptips('名称不能为空！','warning');return;
+			      						  }
+			            				  var data = {'name':text,'id':id};
+			            				  agentRemote.modify(data).then(function(response){
+			            					  $.toast("操作成功");
+			      							$scope.initData();
+			            				  },function(response){
+			            					  
+			            				  })
+				            		  }, function() {
+				    			          //取消操作
+				  			          }); 
+			            		  }
+			            	  },function(response){
+			            	  })
+			              }
+			            },
+			            {
+			              text: "删除",
+			              className: 'color-danger',
+			              onClick: function() {
+			            	  var data = {'id':id};
+			            	  agentRemote.modifyStatus(data).then(function(response){
+			            		  $.toast("操作成功");
+	      							$scope.initData();
+			            	  },function(response){
+			            	  })
+			              }
+			            },
+			            {
+			              text: "生成二维码",
+			              className: 'color-warning',
+			              onClick: function() {
+			            	  location.href="/sp/mobile/Skip/toQRCode?id="+id+"&name="+name+"&type=${type}"
+			              }
+			            }
+			          ]
+			        });
+			}
+			//新增操作
+			$scope.save = function(){
+				$.prompt("新建灯光", "", function(text) {
+					var data = {'name':text,'businessStatus':'0','deviceStatus':'G'};
+						if(text == ''){
+							$.toptips('名称不能为空！','warning');return;
+						}
+						agentRemote.save(data).then(function(response){
+							$.toast("操作成功");
+							$scope.initData();
+						},function(response){
+						});
+			        }, function() {
+			          //取消操作
+			        }); 
+			}
+			//初始化
+			$scope.initData = function(){
+				var data = {"businessStatus":'0','deviceStatus':'G'};
+				agentRemote.query(data).then(function(response){
+					$scope.deviceList = response.data.data.data;
+				},function(response){
+				});
+			}
+			$scope.initMenu();
+		}]);
+</script>
+</head>
+<body  ng-cloak ng-controller="MainController" ontouchstart style="background-color: #f8f8f8;">
+	<div style="margin:9px;">
+	 	<h1 class="page-hd-title">
+        </h1>
+        <p class="page-hd-desc">长按维护数据，单击可查看二维码！</p>
+	</div>
+	<div class="row" style="margin:7px;width:94%;text-align:right;">
+		   <a id="save" href="javascript:;" class="weui_btn weui_btn_mini weui_btn_primary " ng-click="save()">新增</a>
+	</div>
+	<div class="weui_cells">
+		<div class="weui_cell" ng-if="deviceList.length  ==  0">
+		     <div class="weui_cell_bd weui_cell_primary">
+		         <p>暂无数据</p>
+		     </div>
+		</div>
+		<div class="weui_cell" ng-if="deviceList.length > 0" ng-repeat="device in deviceList" on-hold="onHold('{{device.id}}','{{device.name}}')">
+		     <div class="weui_cell_bd weui_cell_primary" >
+		         <p>{{device.name}}</p>
+		     </div>
+		     <div class="weui_cell_ft" ng-if="device.isQrcode == false">未生成二维码</div>
+		      <div class="weui_cell_ft" ng-if="device.isQrcode == true" style="color:green;" ng-click="toShowQr('{{device.id}}')">已生成二维码</div>
+		</div>
+	</div>  
+<!-- torbar  -->
+ <div class="weui_tabbar ">
+		<a href="javascript:;" class="weui_tabbar_item weui_bar_item_on">
+               <div href="javascript:;" class="weui_tabbar_icon">
+                   <img src="/sp/public/images/rush/delivery.png" alt="">
+               </div>
+               <p class="weui_tabbar_label">未出库</p>
+           </a>
+           <a href="javascript:;" class="weui_tabbar_item">
+               <div class="weui_tabbar_icon">
+                   <img src="/sp/public/images/rush/do_delivery.png" alt="">
+               </div>
+               <p class="weui_tabbar_label">已出库</p>
+           </a>
+ </div>
+</body>
+</html>

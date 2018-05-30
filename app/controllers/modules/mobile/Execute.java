@@ -144,6 +144,23 @@ public class Execute  extends MobileFilter {
 	}
 	
 	/**
+	 * 查询灯光时间配置
+	 */
+	public static void queryScLam(){
+		Map<String,String> condition = new HashMap<>();
+		Map map = XjlScConfig.queryLam(condition, 1, 1000000);	
+		ok(map);
+	}
+	
+	/**
+	 * 查询通风配置
+	 */
+	public static void queryScVen(){
+		Map<String,String> condition = new HashMap<>();
+		Map map =XjlScConfig.queryVen(condition, 1, 1000000);
+		ok(map);
+	}
+	/**
 	 * 查询已配置间隔时间
 	 */
 	public static void queryInterval(){

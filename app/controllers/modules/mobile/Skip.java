@@ -248,7 +248,25 @@ public class Skip extends MobileFilter {
 		WxUser wxUser = getWXUser();
 		renderArgs.put("wxUser", wxUser);
 		renderArgs.put("type",params.get("type"));
-		render("modules/xjldw/rush/deviceManage/sc_deviceMosq.html");
+		render("modules/xjldw/rush/deviceManage/sc_deviceLight.html");
+	}
+	/**
+	 * 设备管理--排风扇
+	 */
+	public static void toDeviceFan(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("type",params.get("type"));
+		render("modules/xjldw/rush/deviceManage/sc_deviceFan.html");
+	}
+	/**
+	 * 设备管理--灯光 
+	 */
+	public static void toDeviceLight(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("type",params.get("type"));
+		render("modules/xjldw/rush/deviceManage/sc_deviceLight.html");
 	}
 	/**
 	 * 设备管理--二维码
