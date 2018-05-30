@@ -71,6 +71,14 @@ angular.module('app', ['ngTouch'])
 		$scope.toMosq = function(){
 			location.href="/sp/mobile/Skip/toMosq?params=${toilet}&id=${id}";
 		}
+		//灯光
+		$scope.toLight = function(){
+			location.href="/sp/mobile/Skip/toLight?params=${toilet}&id=${id}";
+		}
+		//排风扇
+		$scope.toFan = function(){
+			location.href="/sp/mobile/Skip/toFan?params=${toilet}&id=${id}";
+		}
 		$scope.doLineTcp = function(){
 			 //$.toptips('暂无法链接tcp服务器','warning')
 			 var data = {"id":'${id}',"status":'1'};
@@ -97,8 +105,8 @@ angular.module('app', ['ngTouch'])
 	 <div class="weui-flex">
            	 	<div class="weui-flex-item">
            	 		<div class="placeholder" style="background-color: #f8f8f8;">
-           	 			<img alt="" src="/sp/public/images/rush/high.png" style="width:150px;height:150px;" ng-if="${toiletInfo.isControl} == false || ${toiletInfo.isSensor} == false||${toiletInfo.isRadiotube} == false||${toiletInfo.isLiquid} == false||${toiletInfo.isWifi} == false || ${toiletInfo.isMosq} == false">
-           	 			<img alt="" src="/sp/public/images/rush/cloud_sub.png" style="width:150px;height:150px;" ng-click="doLineTcp()" ng-if="${toiletInfo.isControl} == true && ${toiletInfo.isSensor} == true&&${toiletInfo.isRadiotube} == true&&${toiletInfo.isLiquid} == true&&${toiletInfo.isWifi} == true&&${toiletInfo.isMosq} == true">
+           	 			<img alt="" src="/sp/public/images/rush/high.png" style="width:150px;height:150px;" ng-if="${toiletInfo.isControl} == false || ${toiletInfo.isSensor} == false||${toiletInfo.isRadiotube} == false||${toiletInfo.isLiquid} == false||${toiletInfo.isWifi} == false || ${toiletInfo.isMosq} == false || ${toiletInfo.isLight} == false || ${toiletInfo.isFan} == false ">
+           	 			<img alt="" src="/sp/public/images/rush/cloud_sub.png" style="width:150px;height:150px;" ng-click="doLineTcp()" ng-if="${toiletInfo.isControl} == true && ${toiletInfo.isSensor} == true&&${toiletInfo.isRadiotube} == true&&${toiletInfo.isLiquid} == true&&${toiletInfo.isWifi} == true&&${toiletInfo.isMosq} == true&&${toiletInfo.isLight} == true&&${toiletInfo.isFan} == true">
            	 		</div>
                 </div>
       </div>
@@ -153,6 +161,24 @@ angular.module('app', ['ngTouch'])
 	            	</div>
 	            </div>
         	</div>
+        	
+        	<!--  -->
+       	<div class="weui-flex" style="margin-top:10%;">
+            <div class="weui-flex-item" >
+            	<div class="placeholder" style="background-color: #f8f8f8;">
+	            	<img alt="灯光" src="/sp/public/images/rush/light.png" style="width:30px;height:30px;" ng-click="toLight()" ng-if="${toiletInfo.isLight} == false">
+		      		<img alt="灯光" src="/sp/public/images/rush/green_light.png" style="width:30px;height:30px;"   ng-if="${toiletInfo.isLight} == true">
+		      		<div style="margin-top:-10%;font-size:13px;color:black;">灯光</div>
+            	</div>
+            </div>
+            <div class="weui-flex-item">
+            	<div class="placeholder" style="background-color: #f8f8f8;">
+            		<img alt="排风扇" src="/sp/public/images/rush/fan.png" style="width:30px;height:30px;" ng-click="toFan()" ng-if="${toiletInfo.isFan} == false">
+            		<img alt="排风扇" src="/sp/public/images/rush/green_fan.png" style="width:30px;height:30px;"  ng-if="${toiletInfo.isFan} == true">
+            		<div style="margin-top:-10%;font-size:13px;color:black;">风扇</div>
+            	</div>
+            </div>
+       	</div>
       </div>
 </div>
 </body>

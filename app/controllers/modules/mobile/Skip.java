@@ -139,6 +139,26 @@ public class Skip extends MobileFilter {
 		renderArgs.put("id",params.get("id"));
 		render("modules/xjldw/rush/bind/sc_bindMosq.html");
 	}
+	/**
+	 * 关联排风扇
+	 */
+	public static void toFan(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("toilet",params.get("params"));
+		renderArgs.put("id",params.get("id"));
+		render("modules/xjldw/rush/bind/sc_bindFan.html");
+	}
+	/**
+	 * 关联灯光
+	 */
+	public static void toLight(){
+		WxUser wxUser = getWXUser();
+		renderArgs.put("wxUser", wxUser);
+		renderArgs.put("toilet",params.get("params"));
+		renderArgs.put("id",params.get("id"));
+		render("modules/xjldw/rush/bind/sc_bindLight.html");
+	}
 	
 	/**
 	 * 学校关注人

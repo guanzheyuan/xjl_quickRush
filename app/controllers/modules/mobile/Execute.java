@@ -303,8 +303,10 @@ public class Execute  extends MobileFilter {
 		String controlCode = params.get("controlCode");
 		String wifiCode = params.get("wifiCode");
 		String mosqCode = params.get("mosqCode");
+		String lightCode = params.get("lightCode");
+		String fanCode = params.get("fanCode");
 		String id = params.get("id");
-		int ret = XjlScToiletInfo.modifyToiletCode(controllerCode, sensorCode, radiotubeCode, liquidCode,controlCode,wifiCode,mosqCode, id);
+		int ret = XjlScToiletInfo.modifyToiletCode(controllerCode, sensorCode, radiotubeCode, liquidCode,controlCode,wifiCode,mosqCode,lightCode,fanCode, id);
 		ok(ret);
 	}
 	
