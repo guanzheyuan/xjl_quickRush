@@ -55,6 +55,7 @@ import utils.CreateQRCode;
 import utils.DateUtil;
 import utils.FileUploadPathUtil;
 import utils.FileUtil;
+import utils.FontText;
 import utils.HttpClientUtil;
 import utils.MsgPush;
 import utils.Preview;
@@ -474,6 +475,8 @@ public class Execute  extends MobileFilter {
 	    int ret = 0;
 	    String [] path = savePath.split(root);
 	    if(flag){
+	    	//补充文字描述
+	    	QRCode.drawTextInImg(savePath, savePath, new FontText(QRCode.fyType(type)+":"+qrcode, 9, "#000000", 40, "微软雅黑"));;
 	    	ret = XjlScDeviceManage.modifyQRCode(qrcode,path[1], id);
 	    }
 	    ok(path[1]);

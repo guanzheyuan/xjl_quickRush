@@ -34,12 +34,18 @@ angular.module('app', ['ngTouch'])
 						method:'post',
 						url:'/sp/mobile/Execute/queryUserByWxOpenId'
 					});
+				},
+				checkPending:function(){
+					return $http({
+						method:'post',
+						url:'/sp/mobile/Execute/queryCheckPending'
+					});
 				}
 			}
 		}])
 		.controller('MainController',['$scope','appValue','agentRemote','$timeout',function($scope, appValue,agentRemote,$timeout){
 			$scope.user = [];
-			
+			$scope.checkList = [];
 			//跳转异常日志
 			$scope.toErrorLog = function(){
 				window.location.href="/sp/mobile/Skip/toScLog";
@@ -56,14 +62,22 @@ angular.module('app', ['ngTouch'])
 			$scope.toDeviceManage = function(){
 				window.location.href="/sp/mobile/Skip/toDeviceManage";
 			}
+			//初始化审核数据
+			$scope.initCheckData = function(){
+				agentRemote.checkPending().then(function(response){
+					$scope.checkList = response.data.data;
+					console.log($scope.checkList);
+				},function(response){
+				})
+			}
 			//初始化
 			$scope.initDate = function(){
 				agentRemote.queryById().then(function(response){
-					console.log(response);
 					$scope.user = response.data.data;
 				},function(){
 				});
 			}
+			$scope.initCheckData();
 			$scope.initDate();
 		}]);
 </script>
@@ -108,7 +122,8 @@ angular.module('app', ['ngTouch'])
 	<div class="weui-flex" style="margin-top:10%;">
 	      <div class="weui-flex-item" ng-click="toCheck()">
 	      	<div class="placeholder" style="background-color: #f8f8f8;">
-	      		<img alt="审核" src="/sp/public/images/rush/sh.png" style="width:30px;height:30px;" >
+	      		<img alt="审核" src="/sp/public/images/rush/sh.png" ng-if="checkList.length > 0" style="width:30px;height:30px;" >
+	      		<img alt="审核" src="/sp/public/images/rush/gray_sh.png" ng-if="checkList.length == 0" style="width:30px;height:30px;" >
 	      		<div style="margin-top:-10%;font-size:13px;color:black;">待审核</div>
 	      	</div>
 	      </div>

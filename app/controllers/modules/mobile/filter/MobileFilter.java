@@ -253,6 +253,9 @@ public class MobileFilter extends BaseController{
 			}
 		}
 		//没有绑定学校
+		if (wxUser!=null&&wxUser.isApply&&("testPC".equals(deviceFlag)||isMobile(userAgent))){
+			render("modules/xjldw/rush/error/sc_repError.html");
+		}
 		if (wxUser!=null&&!wxUser.isBinding&&("testPC".equals(deviceFlag)||isMobile(userAgent))){
 			if(wxUser!=null){
 				Logger.info("缓存用户信息不为空:"+wxUser.wxOpenId+":"+wxUser.isBinding);

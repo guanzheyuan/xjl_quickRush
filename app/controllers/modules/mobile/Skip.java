@@ -268,7 +268,7 @@ public class Skip extends MobileFilter {
 		WxUser wxUser = getWXUser();
 		renderArgs.put("wxUser", wxUser);
 		renderArgs.put("type",params.get("type"));
-		render("modules/xjldw/rush/deviceManage/sc_deviceLight.html");
+		render("modules/xjldw/rush/deviceManage/sc_deviceMosq.html");
 	}
 	/**
 	 * 设备管理--排风扇
