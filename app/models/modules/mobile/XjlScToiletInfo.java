@@ -110,27 +110,35 @@ public class XjlScToiletInfo extends GenericModel {
 			}
 			if(m[5]!=null){
 				xjlScToiletInfo.isControl = true;
+				xjlScToiletInfo.controlCode = m[5].toString();
 			}
 			if(m[6]!=null){
 				xjlScToiletInfo.isSensor = true;
+				xjlScToiletInfo.sensorCode = m[6].toString();
 			}
 			if(m[7]!=null){
 				xjlScToiletInfo.isRadiotube  =true;
+				xjlScToiletInfo.radiotubeCode = m[7].toString();
 			}
 			if(m[8]!=null){
 				xjlScToiletInfo.isLiquid  =true;
+				xjlScToiletInfo.liquidCode = m[8].toString();
 			}
 			if(m[9]!=null){
 				xjlScToiletInfo.isWifi  =true;
+				xjlScToiletInfo.wifiCode = m[9].toString();
 			}
 			if(m[10]!=null){
 				xjlScToiletInfo.isMosq  =true;
+				xjlScToiletInfo.mosqCode = m[10].toString();
 			}
 			if(m[11]!=null){
 				xjlScToiletInfo.isLight  =true;
+				xjlScToiletInfo.lightCode = m[11].toString();
 			}
 			if(m[12]!=null){
 				xjlScToiletInfo.isFan  =true;
+				xjlScToiletInfo.fanCode = m[12].toString();
 			}
 			data.add(xjlScToiletInfo);
 		}

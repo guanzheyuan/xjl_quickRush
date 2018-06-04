@@ -62,12 +62,13 @@ angular.module('app', ['ngTouch','ionic'])
 		}])
 		.factory('handle',['$http','appValue',function($http, appValue){
 			return {
-				flushOpen:function(deviceCode){
+				flushOpen:function(controlCode,radiotubeCode){
 					return $http({
 						method:'JSONP',
 						url:'http://47.98.200.5:8080/watersaving/api/toilet/flushOpenCmd?callback=flushToliet',
 						params:{
-							deviceCode:deviceCode
+							controlCode:controlCode,
+							radiotubeCode:radiotubeCode
 						}
 					});
 				}
@@ -104,6 +105,7 @@ angular.module('app', ['ngTouch','ionic'])
 		    $scope.initLocal = function(me){
 		    	 appValue.index = 1;
 		    	 local.query(1).then(function(response){
+		    		 console.log(response);
 		    		 $scope.lists = response.data.data.data;
 		    		 if (me && me.resetload)
                          me.resetload();
@@ -127,10 +129,9 @@ angular.module('app', ['ngTouch','ionic'])
 		    	}
 		    }
 		    //强冲操作
-		    $scope.flushOpen = function(deviceCode){
+		    $scope.flushOpen = function(controlCode,radiotubeCode){
 		    	console.log('------------------');
-		    	console.log('设备号：'+deviceCode);
-		    	handle.flushOpen(deviceCode).then(function(response){
+		    	handle.flushOpen(controlCode,radiotubeCode).then(function(response){
 		    	},function(response){
 		    	}); 
 		    }
@@ -206,10 +207,10 @@ angular.module('app', ['ngTouch','ionic'])
 			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 2" ng-click="agentRemoteInfo('{{toilet.status}}')"><span class='f-gray'>冲水</span></div>
 			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 3" ng-click="agentRemoteInfo('{{toilet.status}}')"><span class='f-red'>异常</span></div>
 			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 4" ng-click="agentRemoteInfo('{{toilet.status}}')"><span class='f-red'>离线</span></div>
-			     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 5 && toilet.isControl == false||toilet.isLiquid==false||toilet.isMosq==false||toilet.isRadiotube==false||toilet.isSensor==false||toilet.isWifi==false"   ><span class='f-red'>尚未关联设备</span></div>
+			     <div class="weui_cell_bd" style="margin-right:25%;" ng-if="toilet.status == 5 && toilet.isControl == false||toilet.isLiquid==false||toilet.isMosq==false||toilet.isRadiotube==false||toilet.isSensor==false||toilet.isWifi==false"   ><span class='f-red'>尚未关联设备</span></div>
 			     <div class="weui_cell_bd" style="margin-right:20%;" ng-if="toilet.status == 5 && toilet.isControl == true&&toilet.isLiquid==true&&toilet.isMosq==true&&toilet.isRadiotube==true&&toilet.isSensor==true&&toilet.isWifi==true"><span class='f-orange'>关联设备,未链接tcp</span></div>
 			     <div class="weui_cell_ft" >
-			     <a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_primary" ng-if="${wxUser.isAdmin} == true &&(toilet.status == 1 || toilet.status == 3)" ng-click="flushOpen('{{toilet.deviceCode}}')">强冲</a>
+			     <a href="javascript:;" class="weui_btn weui_btn_mini weui_btn_primary" ng-if="${wxUser.isAdmin} == true &&(toilet.status == 1 || toilet.status == 3)" ng-click="flushOpen('{{toilet.controlCode}}','{{toilet.radiotubeCode}}')">强冲</a>
 			     <a href="javascript:;" class="weui_btn weui_btn_disabled weui_btn_mini weui_btn_default" ng-if="${wxUser.isAdmin} == true &&(toilet.status == 2 || toilet.status == 4)">强冲</a>
 			     </div>
 		     </div>

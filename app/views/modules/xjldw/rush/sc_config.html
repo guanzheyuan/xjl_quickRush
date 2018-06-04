@@ -217,6 +217,7 @@ angular.module('app', ['ngTouch','ionic'])
 	                		$("#lam_update").popup('open');
 	 	                	$("#start_update_lam").val(res.split(' — ')[0].replace(':',' ：'));
 	 	                	$("#end_update_lam").val(res.split(' — ')[1].replace(':',' ：'));
+	 	                	$("#minute_lam_update").val(response.data.data.interval)
 	                	}
 	                	if('5' == flag){
 	                		$("#ven_update").popup('open');
@@ -361,6 +362,38 @@ angular.module('app', ['ngTouch','ionic'])
 		 })
 	 }
 	 $scope.timeMinute = function(){
+		 $("#minute_lam_update").picker({title:"选择间隔时间",
+		        cols: [
+		          {
+		            textAlign: 'center',
+		            values: (function () {
+		                var arr = [];
+		                for (var i = 1; i <= 60; i++) {
+		                	if(i%5 == 0){
+		                		arr.push(i < 10 ? i : i);
+		                	}
+		                }
+		                return arr;
+		            })()
+		            
+		          }
+		        ]});
+		 $("#minute_lam").picker({title:"选择间隔时间",
+		        cols: [
+		          {
+		            textAlign: 'center',
+		            values: (function () {
+		                var arr = [];
+		                for (var i = 1; i <= 60; i++) {
+		                	if(i%5 == 0){
+		                		arr.push(i < 10 ? i : i);
+		                	}
+		                }
+		                return arr;
+		            })()
+		            
+		          }
+		        ]}); 
 		 $("#minute").picker({title:"选择间隔时间",
 		        cols: [
 		          {
@@ -820,6 +853,7 @@ angular.module('app', ['ngTouch','ionic'])
 	 }
 	 $scope.queryLam = function(){
 		 agentRemote.queryLam().then(function(response){
+			 console.log(response);
 			 $scope.lamList = response.data.data.data;
 		 },function(response){
 			 
@@ -897,13 +931,16 @@ angular.module('app', ['ngTouch','ionic'])
 		 if($("#end_update_lam").val() == ''){
 				$.toptips('结束时间不能为空','warning');return;
 		 }
+		 if($("#minute_lam_update").val() == ''){
+			 $.toptips('时间间隔不能为空','warning');return;
+		 }
 		 var start_time = $("#start_update_lam").val().split('：')[0];
 		 var end_time = $("#end_update_lam").val().split('：')[0];
 		 if(parseInt(start_time) > parseInt(end_time)){
 				$.toptips('开始时间不能大于结束时间','warning');return;
 		 }
-		 var data ={"timeQuanTum":$("#start_update_lam").val()+'-'+$("#end_update_lam").val(),"id":$scope.id};
-		 agentRemote.modifyTimeQuanTumById(data).then(function(response){
+		 var data ={"timeQuanTum":$("#start_update_lam").val()+'-'+$("#end_update_lam").val(),"iterval":$("#minute_lam_update").val(),"id":$scope.id};
+		 agentRemote.modifyIntervalById(data).then(function(response){
 				$scope.toReload();
 		 },function(response){
 		 })
@@ -995,12 +1032,15 @@ angular.module('app', ['ngTouch','ionic'])
 		 if($("#end_lam").val() == ''){
 				$.toptips('结束时间不能为空','warning');return;
 		  }
+		 if($("#minute_lam").val() == ''){
+			 $.toptips('时间间隔不能为空','warning');return;
+		 }
 		  var start_time = $("#start_lam").val().split('：')[0];
 		  var end_time = $("#end_lam").val().split('：')[0];
 		  if(parseInt(start_time) > parseInt(end_time)){
 				$.toptips('开始时间不能大于结束时间','warning');return;
 		  }
-		  var data ={"startTime":$("#start_lam").val(),"endTime":$("#end_lam").val(),"leaveRush":$scope.grade,"configStatus":'4'};
+		  var data ={"startTime":$("#start_lam").val(),"endTime":$("#end_lam").val(),"interval":$("#minute_lam").val(),"configStatus":'4'};
 			agentRemote.getData(data).then(function(response){
 				$scope.toReload();
 			},function(response){
@@ -1075,7 +1115,7 @@ angular.module('app', ['ngTouch','ionic'])
 	     <div class="weui_cell_bd" style="margin-right:40%;" ng-if="toilet.status == 2"><span class='f-gray'>冲水</span></div>
 	     <div class="weui_cell_bd" style="margin-right:40%;" ng-if="toilet.status == 3"><span class='f-red'>异常</span></div>
 	     <div class="weui_cell_bd" style="margin-right:40%;" ng-if="toilet.status == 4"><span class='f-red'>离线</span></div>
-	     <div class="weui_cell_bd" style="margin-right:30%;" ng-if="toilet.status == 5 && toilet.isControl == false||toilet.isLiquid==false||toilet.isMosq==false||toilet.isRadiotube==false||toilet.isSensor==false||toilet.isWifi==false||toilet.isLight == false || toilet.isFan == false " ng-click="toBindExplain('{{toilet.toiletName}}','{{toilet.id}}')"  ><span class='f-red'>尚未关联设备</span></div>
+	     <div class="weui_cell_bd" style="margin-right:25%;" ng-if="toilet.status == 5 && toilet.isControl == false||toilet.isLiquid==false||toilet.isMosq==false||toilet.isRadiotube==false||toilet.isSensor==false||toilet.isWifi==false||toilet.isLight == false || toilet.isFan == false " ng-click="toBindExplain('{{toilet.toiletName}}','{{toilet.id}}')"  ><span class='f-red'>尚未关联设备</span></div>
 	     <div class="weui_cell_bd" style="margin-right:20%;" ng-if="toilet.status == 5 && toilet.isControl == true&&toilet.isLiquid==true&&toilet.isMosq==true&&toilet.isRadiotube==true&&toilet.isSensor==true&&toilet.isWifi==true&&toilet.isLight == true&&toilet.isFan == true" ng-click="toBindExplain('{{toilet.toiletName}}','{{toilet.id}}')"  ><span class='f-orange'>关联设备,未链接tcp</span></div>
 	</div>
 </div>
@@ -1157,7 +1197,7 @@ angular.module('app', ['ngTouch','ionic'])
   </div> 
   <div class="weui_cell " ng-click="clickAction('{{lam.id}}','4')"  ng-repeat="lam in lamList">
       <div class="weui_cell_bd weui_cell_primary">
-          <p>{{lam.timeQuantum}}</p>
+          <p>{{lam.timeQuantum}}灯亮时长{{lam.interval}}分钟</p>
       </div>
   </div>
 </div> 
@@ -1265,6 +1305,12 @@ angular.module('app', ['ngTouch','ionic'])
 				          <input class="weui-input" id="end_update_lam" type="text" value="">
 				        </div>
 			       </div>
+			       <div class="weui-cell">
+				        <div class="weui-cell__hd"><label for="time" class="">间隔时间：</label></div>
+				        <div class="weui-cell__bd">
+				          <input class="weui-input" id="minute_lam_update" type="text" value="">
+				        </div>
+			       </div>
  			</div>
           </div>
         </div>
@@ -1293,6 +1339,12 @@ angular.module('app', ['ngTouch','ionic'])
 				        <div class="weui-cell__hd"><label for="time" class="">结束时间：</label></div>
 				        <div class="weui-cell__bd">
 				          <input class="weui-input" id="end_lam" type="text" value="">
+				        </div>
+			       </div>
+			        <div class="weui-cell">
+				        <div class="weui-cell__hd"><label for="time" class="">间隔时间：</label></div>
+				        <div class="weui-cell__bd">
+				          <input class="weui-input" id="minute_lam" type="text" value="">
 				        </div>
 			       </div>
  			</div>
